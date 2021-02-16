@@ -1,25 +1,18 @@
-#include <qt/inc/main_window.h>
+/************************************************
+ * @file main.cpp
+ * @author Trisuborn (ttowfive@gmail.com)
+ * @brief
+ * @version 1.0
+ * @date 2021-02-17
+ *
+ * @copyright Copyright (c) 2021
+ *
+ *************************************************/
 #include <QApplication>
 #include <QtNetwork>
 
-class mcgf_network
-{
-public:
-    mcgf_network(main_window *mw);
-    ~mcgf_network();
-private:
-
-};
-
-mcgf_network::mcgf_network(main_window *mw)
-{
-    mw->main_ui->progress_bar->setValue(99);
-}
-
-mcgf_network::~mcgf_network()
-{
-
-}
+#include <qt/inc/main_window.h>
+#include <mcgf/network/mcgf_network.h>
 
 int main(int argc, char *argv[])
 {

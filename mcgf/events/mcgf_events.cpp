@@ -1,5 +1,5 @@
 /************************************************
- * @file mcgf_network.cpp
+ * @file mcgf_events.cpp
  * @author Trisuborn (ttowfive@gmail.com)
  * @brief
  * @version 1.0
@@ -8,14 +8,6 @@
  * @copyright Copyright (c) 2021
  *
  *************************************************/
-#include "mcgf_network.h"
+#include "mcgf_events.h"
 
-mcgf_network::mcgf_network(main_window *mw)
-{
-    mw->main_ui->progress_bar->setValue(99);
-}
 
-mcgf_network::~mcgf_network()
-{
-
-}

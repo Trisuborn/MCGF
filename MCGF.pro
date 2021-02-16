@@ -10,9 +10,13 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
+    mcgf/events/mcgf_events.cpp \
+    mcgf/network/mcgf_network.cpp \
     qt/src/main_window.cpp
 
 HEADERS += \
+    mcgf/events/mcgf_events.h \
+    mcgf/network/mcgf_network.h \
     qt/inc/main_window.h
 
 # Default rules for deployment.
@@ -24,4 +28,9 @@ FORMS += \
     qt/ui/main_window.ui
 
 DISTFILES += \
-    MCGF_zh_CN.ts
+    .gitignore \
+    .vscode/settings.json \
+    LICENSE \
+    MCGF_zh_CN.ts \
+    README.md \
+    mcgf.code-workspace
