@@ -10,12 +10,38 @@
  *************************************************/
 #include "mcgf_network.h"
 
-mcgf_network::mcgf_network(main_window *mw)
+#include <QDebug>
+#include <QNetworkReply>
+
+
+mcgf_network::mcgf_network()
 {
-    mw->main_ui->progress_bar->setValue(99);
+    qDebug() << "mcgf_network init.";
+    this->network_am = new QNetworkAccessManager(this);
+    QObject::connect(this->network_am, SIGNAL(finished(QNetworkReply*)),this ,SLOT(replyFinished(QNetworkReply*)));
 }
 
 mcgf_network::~mcgf_network()
 {
-
+    qDebug() << "mcgf_network delete.";
+    delete this->network_am;
 }
+
+void mcgf_network::get_html(QString url)
+{
+    if (url == nullptr) {
+        qDebug() << "url is null.";
+    } else {
+        qDebug() << "get html: " << url;
+        this->network_am->get(QNetworkRequest(QUrl(url)));
+    }
+}
+
+void mcgf_network::network_reply_slot(QNetworkReply *reply)
+{
+    qDebug() << reply->readAll();
+}
+
+
+
+

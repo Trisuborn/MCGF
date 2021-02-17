@@ -12,12 +12,24 @@
 #define MCGF_NETWORK_H
 
 #include <qt/inc/main_window.h>
+#include <QNetworkAccessManager>
 
-class mcgf_network {
-    public:
-    mcgf_network(main_window *mw);
+class mcgf_network : public QObject
+{
+
+    Q_OBJECT
+
+public:
+    mcgf_network();
     ~mcgf_network();
-    private:
+
+    void get_html(QString url = nullptr);
+
+public slots:
+    void network_reply_slot(QNetworkReply *reply);
+
+private:
+    QNetworkAccessManager *network_am;
 
 };
 

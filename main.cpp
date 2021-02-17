@@ -14,14 +14,15 @@
 #include <qt/inc/main_window.h>
 #include <mcgf/network/mcgf_network.h>
 
+QString url = "https://www.baidu.com/";
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     main_window main_win;
 
-    mcgf_network mcgf_netw = mcgf_network(&main_win);
-
-
+    mcgf_network *mcgf_netw = new mcgf_network;
+    mcgf_netw->get_html(url);
 
     main_win.show();
     return app.exec();
