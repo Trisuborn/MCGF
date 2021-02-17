@@ -16,17 +16,26 @@
 
 class mcgf_network : public QObject
 {
-
     Q_OBJECT
-
 public:
+
+    /* get html params */
+    typedef struct {
+        QNetworkReply *reply;
+        QString *file_name;
+        QString *save_path;
+    }gh_params_t;
+
     mcgf_network();
     ~mcgf_network();
-
-    void get_html(QString url = nullptr);
+    bool get_html(QString url = nullptr, bool save = false, void *params = nullptr);
 
 public slots:
-    void network_reply_slot(QNetworkReply *reply);
+    void network_reply_slot(QNetworkReply *reply = nullptr);
+    bool save_html(gh_params_t *params = nullptr);
+
+signals:
+    void save_html_sig(gh_params_t *params);
 
 private:
     QNetworkAccessManager *network_am;

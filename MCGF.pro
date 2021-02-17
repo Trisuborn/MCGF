@@ -11,11 +11,13 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     mcgf/events/mcgf_events.cpp \
+    mcgf/file/mcgf_file.cpp \
     mcgf/network/mcgf_network.cpp \
     qt/src/main_window.cpp
 
 HEADERS += \
     mcgf/events/mcgf_events.h \
+    mcgf/file/mcgf_file.h \
     mcgf/network/mcgf_network.h \
     qt/inc/main_window.h
 
