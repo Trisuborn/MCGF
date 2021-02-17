@@ -10,7 +10,8 @@
  *************************************************/
 #include "mcgf_file.h"
 
-bool qt_file_operation::openw(QString path, const char *wbuffer)
+
+bool mcgf_fo::openw(QString path, const char *wbuffer)
 {
     bool fflag = false;
     qint64 wsize = 0;
@@ -25,4 +26,22 @@ bool qt_file_operation::openw(QString path, const char *wbuffer)
         else
             return true;
     }
+    file.close();
 }
+
+bool mcgf_fo::opena(QString path, const char *wbuffer)
+{
+
+}
+
+bool mcgf_fo::openr(QString path, char *rbuffer)
+{
+
+}
+
+bool mcgf_fo::openrw(QString path, char *buffer)
+{
+
+}
+
+

@@ -13,7 +13,8 @@
 
 #include <QFile>
 
-class qt_file_operation : public QObject
+/* mcgf file operation */
+class mcgf_fo : public QObject
 {
     Q_OBJECT
 public:

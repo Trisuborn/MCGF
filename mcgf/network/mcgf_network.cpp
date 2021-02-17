@@ -9,19 +9,19 @@
  *
  *************************************************/
 #include "mcgf_network.h"
+#include "mcgf/file/mcgf_file.h"
 
+#include <QMessageBox>
 #include <QDebug>
 #include <QNetworkReply>
 
-static bool save_flag = false;
 
-mcgf_network::gh_params_t *args = nullptr;
-
-void Sleep(int msec)
+void sleep(int msec)
 {
     QTime dieTime = QTime::currentTime().addMSecs(msec);
-    while ( QTime::currentTime() < dieTime )
+    while ( QTime::currentTime() < dieTime ) {
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
 }
 
 mcgf_network::mcgf_network()
@@ -73,8 +73,8 @@ bool mcgf_network::get_html(QString url, bool save, void *params)
 void mcgf_network::network_reply_slot(QNetworkReply *reply)
 {
     if ( reply ) {
-        qDebug() << reply->read(50);
-        if (save_flag == true) {
+        if ( save_flag == true ) {
+            args->reply = reply;
             emit save_html_sig(args);
         }
     } else {
@@ -88,19 +88,34 @@ void mcgf_network::network_reply_slot(QNetworkReply *reply)
     );
 }
 
+
 bool mcgf_network::save_html(gh_params_t *params)
 {
     if ( params->reply == nullptr ) {
-        // TODO: using ui to alert user.
         qDebug() << "Html hasn't any replies";
+        QMessageBox::warning(nullptr, "Error", "Http get error!", QMessageBox::Ok, QMessageBox::Cancel);
         return false;
-    } else if ( !(params->file_name) || !(params->save_path) ) {
+    } else if ( (params->file_name == nullptr) || (params->save_path == nullptr) ) {
         qDebug() << "Save name and path error.";
         return false;
     }
 
-    qDebug() << "Save html in: " << *params->save_path;
-    qDebug() << "Save html as: " << *params->file_name;
+    qDebug() << "Save html in: " << params->save_path;
+    qDebug() << "Save html as: " << params->file_name;
+    qDebug() << "Starting save...";
+
+    QString path = params->save_path + params->file_name;
+    mcgf_fo file;
+    bool fflag = false;
+
+    fflag = file.openw(path, params->reply->readAll());
+    if ( fflag ) {
+        // TODO: do something
+        qDebug() << "Save done.";
+        QMessageBox::warning(nullptr, "Successfully!", "Save done", QMessageBox::Ok, QMessageBox::Cancel);
+    } else {
+        QMessageBox::warning(nullptr, "Error", "Save html error", QMessageBox::Ok, QMessageBox::Cancel);
+    }
 
     QObject::disconnect(
         this,

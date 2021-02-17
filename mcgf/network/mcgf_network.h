@@ -22,8 +22,8 @@ public:
     /* get html params */
     typedef struct {
         QNetworkReply *reply;
-        QString *file_name;
-        QString *save_path;
+        QString file_name;
+        QString save_path;
     }gh_params_t;
 
     mcgf_network();
@@ -39,6 +39,9 @@ signals:
 
 private:
     QNetworkAccessManager *network_am;
+
+    bool save_flag = false;
+    mcgf_network::gh_params_t *args = nullptr;
 
 };
 
