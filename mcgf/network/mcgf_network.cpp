@@ -9,6 +9,7 @@
  *
  *************************************************/
 #include "mcgf_network.h"
+#include <fstream>
 
 #include <QDebug>
 #include <QNetworkReply>
@@ -18,7 +19,7 @@ mcgf_network::mcgf_network()
 {
     qDebug() << "mcgf_network init.";
     this->network_am = new QNetworkAccessManager(this);
-    QObject::connect(this->network_am, SIGNAL(finished(QNetworkReply*)),this ,SLOT(replyFinished(QNetworkReply*)));
+    QObject::connect(this->network_am, SIGNAL(finished(QNetworkReply*)),this ,SLOT(network_reply_slot(QNetworkReply*)));
 }
 
 mcgf_network::~mcgf_network()
