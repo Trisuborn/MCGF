@@ -13,12 +13,14 @@ SOURCES += \
     mcgf/events/mcgf_events.cpp \
     mcgf/file/mcgf_file.cpp \
     mcgf/network/mcgf_network.cpp \
+    mcgf/threads/mcgf_threads.cpp \
     qt/src/main_window.cpp
 
 HEADERS += \
     mcgf/events/mcgf_events.h \
     mcgf/file/mcgf_file.h \
     mcgf/network/mcgf_network.h \
+    mcgf/threads/mcgf_threads.h \
     qt/inc/main_window.h
 
 # Default rules for deployment.
@@ -35,4 +37,5 @@ DISTFILES += \
     LICENSE \
     MCGF_zh_CN.ts \
     README.md \
-    mcgf.code-workspace
+    mcgf.code-workspace \
+    test.html

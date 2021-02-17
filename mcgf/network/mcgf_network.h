@@ -16,7 +16,6 @@
 #include <QThread>
 #include <QMutex>
 
-extern QMutex nw_qmutex;
 
 class mcgf_nw_dl_th : public QThread
 {

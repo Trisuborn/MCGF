@@ -1,266 +1,1498 @@
+
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="referrer" content="never" />
-    <meta name="description" content="在QT中，我们使用http下载时，希望在下载之前获取到文件大小或者其它信息怎么办？(PS:相关信息还需要服务器支持，如果你不清楚有哪些相关HTTP头信息，可以通过抓包工具查看下。)没关系，下面我教大家" />
-    <meta property="og:description" content="在QT中，我们使用http下载时，希望在下载之前获取到文件大小或者其它信息怎么办？(PS:相关信息还需要服务器支持，如果你不清楚有哪些相关HTTP头信息，可以通过抓包工具查看下。)没关系，下面我教大家" />
-    <meta http-equiv="Cache-Control" content="no-transform" />
-    <meta http-equiv="Cache-Control" content="no-siteapp" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>QT之HTTP下载获取文件大小信息 - 苍月代表我 - 博客园</title>
-    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
-    
-    <link rel="stylesheet" href="/css/blog-common.min.css?v=Ey2dEx6TCJEMq7i5rGGloHkehiHv58PKGLPsLJ6UZME" />
-    <link id="MainCss" rel="stylesheet" href="/skins/codinglife/bundle-codinglife.min.css?v=FsApk7eFqynriWBr2WTK1wLXK195LmCQXIezyTcH0Ss" />
-    
-    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/codinglife/bundle-codinglife-mobile.min.css?v=VdN8Las2tPHZ0_VGM-H30hnBIcNWAKfCWmdIs14AsU8" />
-    
-    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/lifan3a/rss" />
-    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/lifan3a/rsd.xml" />
-    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/lifan3a/wlwmanifest.xml" />
+    <meta charset="utf-8">
+    <link rel="canonical" href="https://blog.csdn.net/qq_40194498/article/details/80063960"/>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="renderer" content="webkit"/>
+    <meta name="force-rendering" content="webkit"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="report" content='{"pid": "blog", "spm":"1001.2101"}'>
+    <meta name="referrer" content="always">
+    <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+    <meta name="shenma-site-verification" content="5a59773ab8077d4a62bf469ab966a63b_1497598848">
+    <meta name="applicable-device" content="pc">
+    <link  href="https://g.csdnimg.cn/static/logo/favicon32.ico"  rel="shortcut icon" type="image/x-icon" />
+    <title>Qt延时处理的四种方法_左霖风的博客-CSDN博客_qt 延时</title>
     <script>
-        var currentBlogId = 207548;
-        var currentBlogApp = 'lifan3a';
-        var cb_enable_mathjax = false;
-        var isLogined = false;
-        var isBlogOwner = false;
-        var skinName = 'CodingLife';
-        var visitorUserId = '';
+      (function(){ 
+        var el = document.createElement("script"); 
+        el.src = "https://s3a.pstatp.com/toutiao/push.js?1abfa13dfe74d72d41d83c86d240de427e7cac50c51ead53b2e79d40c7952a23ed7716d05b4a0f683a653eab3e214672511de2457e74e99286eb2c33f4428830"; 
+        el.id = "ttzz"; 
+        var s = document.getElementsByTagName("script")[0]; 
+        s.parentNode.insertBefore(el, s);
+      })(window)
     </script>
-        <script>
-            var currentPostDateAdded = '2017-10-19 01:22';
-        </script>
-    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
-    <script src="/js/blog-common.min.js?v=wZ2YrSjnPoHpguI4VW77X-dNjah_PynpJQ19BzKDOzw"></script>
-    
-    
-    
+        <meta name="keywords" content="qt 延时">
+        <meta name="csdn-baidu-search"  content='{"autorun":true,"install":true,"keyword":"qt 延时"}'>
+    <meta name="description" content="有些时候，我们需要程序延时一会儿：    这里提供两种方法：1、多线程程序使用QThread::sleep()或者QThread::msleep()或QThread::usleep()或QThread::wait()进行延时处理。Sleep不会释放对象锁，其他线程无法访问对象，因此会阻塞线程；而Wait会释放对象锁，使得其他线程能够访问该对象。  2、自定义延时函数：  使用QEve...">
+    <script src='//g.csdnimg.cn/tingyun/1.8.3/blog.js' type='text/javascript'></script>
+        <link rel="stylesheet" type="text/css" href="https://csdnimg.cn/release/blogv2/dist/pc/css/detail_enter-ace8742f72.min.css">
+    <script type="application/ld+json">{"@context":"https://ziyuan.baidu.com/contexts/cambrian.jsonld","@id":"https://blog.csdn.net/qq_40194498/article/details/80063960","appid":"1638831770136827","pubDate":"2018-04-24T14:17:03","title":"Qt延时处理的四种方法_左霖风的博客-CSDN博客_qt 延时","upDate":"2018-04-24T14:17:03"}</script>
+        <link rel="stylesheet" type="text/css" href="https://csdnimg.cn/release/blogv2/dist/pc/themesSkin/skin-sea/skin-sea-d3a08c2048.min.css">
+    <script src="https://csdnimg.cn/public/common/libs/jquery/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var isCorporate = false;//注释删除enterprise
+        var username =  "qq_40194498";
+        var skinImg = "white";
+        var blog_address = "https://blog.csdn.net/qq_40194498";
+        var currentUserName = "";
+        var isOwner = false;
+        var loginUrl = "http://passport.csdn.net/account/login?from=https://blog.csdn.net/qq_40194498/article/details/80063960";
+        var blogUrl = "https://blog.csdn.net/";
+        var avatar = "https://profile.csdnimg.cn/8/1/2/3_qq_40194498";
+        var articleTitle = "Qt延时处理的四种方法";
+        var articleDesc = "有些时候，我们需要程序延时一会儿：    这里提供两种方法：1、多线程程序使用QThread::sleep()或者QThread::msleep()或QThread::usleep()或QThread::wait()进行延时处理。Sleep不会释放对象锁，其他线程无法访问对象，因此会阻塞线程；而Wait会释放对象锁，使得其他线程能够访问该对象。  2、自定义延时函数：  使用QEve...";
+        var articleTitles = "Qt延时处理的四种方法_左霖风的博客-CSDN博客_qt 延时";
+        var nickName = "52_赫兹的鲸";
+        var articleDetailUrl = "https://blog.csdn.net/qq_40194498/article/details/80063960";
+        if(window.location.host.split('.').length == 3) {
+            blog_address = blogUrl + username;
+        }
+        var skinStatus = "White";
+        var blogStaticHost = "https://csdnimg.cn/release/blogv2/"
+    </script>
+    <script src="https://g.csdnimg.cn/??fixed-sidebar/1.1.6/fixed-sidebar.js" type="text/javascript"></script>
+    <script src='//g.csdnimg.cn/common/csdn-report/report.js' type='text/javascript'></script>
+    <link rel="stylesheet" type="text/css" href="https://csdnimg.cn/public/sandalstrap/1.4/css/sandalstrap.min.css">
+    <style>
+        .MathJax, .MathJax_Message, .MathJax_Preview{
+            display: none
+        }
+    </style>
+    <script src="https://dup.baidustatic.com/js/ds.js"></script>
 </head>
-<body class="has-navbar">
-    <a name="top"></a>
-    <div id="top_nav" class="navbar forpc">
-        <nav id="nav_main" class="navbar-main">
-            <ul id="nav_left" class="navbar-list navbar-left">
-                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
-                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
-                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
-                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
-                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
-                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
-                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
-            </ul>
-            <ul id="nav_right" class="navbar-list navbar-right">
-                <li>
-                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
-                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
-                        <button type="submit" id="zzk_search_button">
-                            <img src="/images/aggsite/search.svg" alt="搜索" />
-                        </button>
-                    </form>
-                </li>
-                <li id="navbar_login_status" class="navbar-list">
-                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
-                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+<body class="nodata " style="">
+        <script>
+            var toolbarSearchExt = {"landingWord":["qt 延时"],"queryWord":"","tag":["Qt","Sleep","Wait"],"title":"Qt延时处理的四种方法"};
+        </script>
+    <script src="https://g.csdnimg.cn/common/csdn-toolbar/csdn-toolbar.js" type="text/javascript"></script>
+    <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+    </script>
+<link rel="stylesheet" href="https://csdnimg.cn/release/blogv2/dist/pc/css/blog_code-01256533b5.min.css">
+<link rel="stylesheet" href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/chart-3456820cac.css" />
+<div class="main_father clearfix d-flex justify-content-center" style="height:100%;"> 
+    <div class="container clearfix" id="mainBox">
+        <main>
+<script type="text/javascript">
+    var blogSensitiveWords = "";
+    function getQueryString(name) {   
+      var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象  
+      var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+      if( r != null ) return decodeURIComponent( r[2] ); return '';   
+    }
+    function stripscript(s){ 
+      var pattern = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？%]") 
+      var rs = ""; 
+      for (var i = 0; i < s.length; i++) { 
+        rs = rs+s.substr(i, 1).replace(pattern, ''); 
+      } 
+      return rs; 
+    }
+    var blogHotWords = stripscript(getQueryString('utm_term')).length > 1 ? stripscript(getQueryString('utm_term')) : ''
+</script>
+<div class="blog-content-box">
+    <div class="article-header-box">
+        <div class="article-header">
+            <div class="article-title-box">
+                <h1 class="title-article" id="articleContentId">Qt延时处理的四种方法</h1>
+            </div>
+            <div class="article-info-box">
+                <div class="article-bar-top">
+                    <img class="article-type-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/original.png" alt="">
+                    <div class="bar-content">
+                        <img class="article-vip-img article-heard-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/identityVip.png" alt="">
+                        <span class="article-vip-text vip_article"> VIP文章</span>
+                    <a class="follow-nickName " href="https://blog.csdn.net/qq_40194498" target="_blank" rel="noopener">52_赫兹的鲸</a>
+                    <span class="time">2018-04-24 14:17:03</span>
+                    <img class="article-read-img article-heard-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes.png" alt="">
+                    <span class="read-count">49721</span>
+                    <a id="blog_detail_zk_collection" class="un-collection" data-report-click='{"mod":"popu_823","spm":"1001.2101.3001.4232","ab":"new"}'>
+                        <img class="article-collect-img article-heard-img un-collect-status isdefault" style="display:inline-block" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect.png" alt="">
+                        <img class="article-collect-img article-heard-img collect-status isactive" style="display:none" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive.png" alt="">
+                        <span class="name">收藏</span>
+                        <span class="get-collection">
+                            137
+                        </span>
                     </a>
-                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
-                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=oS4PkibyMjZ9rGD5XAcLt99uW_s76Javy2up4dbnZNY" alt="短消息" />
-                        <span id="msg_count" style="display: none"></span>
-                    </a>
-                    <div id="user_info" class="navbar-user-info dropdown">
-                        <a class="dropdown-button" href="https://home.cnblogs.com/">
-                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
-                        </a>
-                        <div class="dropdown-menu">
-                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
-                            <a href="https://home.cnblogs.com/">我的园子</a>
-                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
-                            <a href="javascript:void(0)" onclick="logout();">退出登录</a>
+                    </div>
+                </div>
+                <div class="blog-tags-box">
+                    <div class="tags-box artic-tag-box">
+                            <span class="label">分类专栏：</span>
+                                <a class="tag-link" href="https://blog.csdn.net/qq_40194498/category_7388553.html" target="_blank" rel="noopener">QT</a>
+                            <span class="label">文章标签：</span>
+                                <a data-report-click='{"mod":"popu_626","spm":"1001.2101.3001.4223","strategy":"Qt","ab":"new"}' class="tag-link" href="https://www.csdn.net/tags/MtzaIgwsMzM0NDctYmxvZwO0O0OO0O0O.html" target="_blank" rel="noopener">Qt</a>
+                                <a data-report-click='{"mod":"popu_626","spm":"1001.2101.3001.4223","strategy":"Sleep","ab":"new"}' class="tag-link" href="https://www.csdn.net/tags/MtTaEg0sMDkxNTYtYmxvZwO0O0OO0O0O.html" target="_blank" rel="noopener">Sleep</a>
+                                <a data-report-click='{"mod":"popu_626","spm":"1001.2101.3001.4223","strategy":"Wait","ab":"new"}' class="tag-link" href="https://www.csdn.net/tags/MtTaEg0sMDMwNTctYmxvZwO0O0OO0O0O.html" target="_blank" rel="noopener">Wait</a>
+                    </div>
+                </div>
+                <div class="up-time"><span>最后发布:2018-04-24 14:17:03</span><span>首次发布:2018-04-24 14:17:03</span></div>
+                <div class="slide-content-box">
+                    <div class="article-copyright">
+                        <div class="creativecommons">
+                            版权声明：本文为博主原创文章，遵循<a href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener"> CC 4.0 BY-SA </a>版权协议，转载请附上原文出处链接和本声明。
+                        </div>
+                        <div class="article-source-link">
+                            本文链接：<a href="https://blog.csdn.net/qq_40194498/article/details/80063960" target="_blank">https://blog.csdn.net/qq_40194498/article/details/80063960</a>
                         </div>
                     </div>
-                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
-                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="login()">登录</a>
-                </li>
-            </ul>
-        </nav>
+                </div>
+                <div class="operating">
+                    <a class="href-article-edit slide-toggle">版权</a>
+                </div>
+            </div>
+        </div>
     </div>
-
-    
-    <!--done-->
-<div id="home">
-<div id="header">
-	<div id="blogTitle">
-        <a id="lnkBlogLogo" href="https://www.cnblogs.com/lifan3a/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
-		
-<!--done-->
-<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/lifan3a/">苍月代表我</a>
-</h1>
-<h2>思念着你的人所在的地方就是你的归处...</h2>
-
-
-
-
-		
-	</div><!--end: blogTitle 博客的标题和副标题 -->
-	<div id="navigator">
-		
-<ul id="navList">
-<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
-博客园</a>
-</li>
-<li>
-<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/lifan3a/">
-首页</a>
-</li>
-<li>
-
-<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
-新随笔</a>
-</li>
-<li>
-<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E8%8B%8D%E6%9C%88%E4%BB%A3%E8%A1%A8%E6%88%91">
-联系</a></li>
-<li>
-<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/lifan3a/rss/">
-订阅</a>
-<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
-<li>
-<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
-管理</a>
-</li>
-</ul>
-
-
-		<div class="blogStats">
-			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
-		</div><!--end: blogStats -->
-	</div><!--end: navigator 博客导航栏 -->
-</div><!--end: header 头部 -->
-<div id="main">
-	<div id="mainContent">
-	<div class="forFlow">
-		<div id="post_detail">
-    <!--done-->
-    <div id="topics">
-        <div class="post">
-            <h1 class = "postTitle">
-                
-<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/lifan3a/articles/7691974.html">
-    <span>QT之HTTP下载获取文件大小信息</span>
-    
-
-
-</a>
-
-            </h1>
-            <div class="clear"></div>
-            <div class="postBody">
-                
-<div id="cnblogs_post_body" class="blogpost-body">
-    <p>在QT中，我们使用http下载时，希望在下载之前获取到文件大小或者其它信息怎么办？(PS:相关信息还需要服务器支持，如果你不清楚有哪些相关HTTP头信息，可以通过抓包工具查看下。)没关系，下面我教大家，上代码。</p>
-<p>void getFileInfoSize()<br>{<br>&nbsp; &nbsp; &nbsp;QNetworkAccessManager manager;<br>&nbsp; &nbsp; &nbsp;QNetworkRequest request;<br>&nbsp; &nbsp; &nbsp;request.setUrl(qUrl);<br>&nbsp; &nbsp; &nbsp;QNetworkReply* headReply = manager.head(request);<br>&nbsp; &nbsp; &nbsp;connect(headReply, SIGNAL(finished()), this, SLOT(onGetFileInfoSize()));<br>}<br><br>void&nbsp;onGetFileInfoSize()<br>{<br>&nbsp; &nbsp; &nbsp;QString fileSize;<br>&nbsp; &nbsp; &nbsp;if (headReply-&gt;hasRawHeader(QString("Content-Length").toUtf8()))<br>&nbsp; &nbsp; &nbsp;{<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; fileSize=headReply-&gt;rawHeader(QString("Content-Length").toUtf8());<br>&nbsp; &nbsp; &nbsp;}</p>
-<p>&nbsp; &nbsp; &nbsp;//这里fileSize就是我们想要的文件大小，或者其它HTTP头信息，都可以根据类似处理。如下图通过抓包工具获取的HTTP头信息。</p>
-<p>}</p>
-<p>比如我还想知道文件名称，可以这样：(PS:再次强调，这里需要你的服务器是否支持)很显然通过抓包工具可以看到，我这里是支持获取文件的名称。</p>
-<p>QString fileName;</p>
-<p>if (headReply-&gt;hasRawHeader(QString("filename").toUtf8()))<br>{<br>&nbsp; &nbsp; &nbsp; fileName=&nbsp;headReply-&gt;rawHeader(QString("filename").toUtf8())；</p>
-<p>}</p>
-<p><img src="http://img.blog.csdn.net/20161206195410414?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbHkzMDU3NTA2NjU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
-<p>通过上面的例子，不知各位是否理解了，没理解的，可以留言哦，我看到留言后，会回复的。<img src="http://static.blog.csdn.net/xheditor/xheditor_emot/default/smile.gif" alt="微笑">如果有讲得不对的地方，大家指出来哈！一起分享一起交流</p>
+    <article class="baidu_pl">
+        <div id="article_content" class="article_content clearfix">
+        <link rel="stylesheet" href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/ck_htmledit_views-b5506197d8.css">
+                <div id="content_views" class="markdown_views prism-atom-one-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                        <path stroke-linecap="round" d="M5,0 0,2.5 5,5z" id="raphael-marker-block" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+                    </svg>
+                    <p>有些时候，我们需要程序延时一会儿：</p> 
+<p><strong>这里提供四种方法：</strong></p> 
+<p>1、多线程程序使用<code>QThread::sleep()</code>或者<code>QThread::msleep()</code>或<code>QThread::usleep()</code>或<code>QThread::wait()</code>进行延时处理。<strong>Sleep</strong>不会释放对象锁，其他线程无法访问对象，因此会阻塞线程；而<strong>Wait</strong>会释放对象锁，使得其他线程能够访问该对象。</p> 
+<p>2、自定义延时函数：<br> 使用<code>QEventLoop</code></p> 
+<pre><code>void Widget::Sleep(int msec)
+{
+    QTime dieTime = QTime::currentTime().addMSecs(msec);
+    while( QTime::currentTime() &lt; dieTime )
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
+</code></pre> 
+<p>传入参数<code>msec</code>，使程序延时<code>msec</code>毫秒。这种方法不会阻塞当前线程，尤其适合Qt的单线程带UI程序，或者UI线程，因为线程阻塞时，很明显的现象就是UI卡死。当然，你也可以更改<code>addMSecs</code>为<code>addSecs</code>使程序延时<code>msec</code>秒。<br> 如果去掉<code>QCoreApplication::processEvents(QEventLoop::AllEvents, 100);</code> 可以延时，但也会阻塞线程<br> <code>QCoreApplication:</code></p>
+                </div>
+                <link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/markdown_views-d7a94ec6ab.css" rel="stylesheet">
+                <link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/style-80ad9b4f5b.css" rel="stylesheet">
+        </div>
+    </article>
 </div>
-<div id="MySignature"></div>
-<div class="clear"></div>
-<div id="blog_post_info_block">
-    <div id="blog_post_info"></div>
-    <div class="clear"></div>
-    <div id="post_next_prev"></div>
+<script>
+    // 敏感词替换
+    // replaceArticleContentWords(blogSensitiveWords,'sensitiveWords')
+    // 高亮词
+    // replaceArticleContentWords(blogHotWords,'hotWords')
+    // 公共方法
+    function replaceArticleContentWords(words,type){
+      if(words){   
+        var getContentViews = document.getElementById("content_views");
+        var getContentTitle = document.getElementById("articleContentId");
+        var contentViewsInnerHTML = getContentViews.innerHTML;
+        var contentTitleInnerHTML = getContentTitle.innerHTML;
+        var keyWordsJsonArr = [];
+        var keyWordsArr = words.split(',');
+        function repeatTimes(str, num){
+            return num > 1 ? str += repeatTimes(str, --num): str;
+        }
+        for(var i = 0; i < keyWordsArr.length; i++){
+            var keyWordsJson = {} ;
+            keyWordsJson.key = keyWordsArr[i];
+            if(type == 'hotWords'){
+              keyWordsJson.value = '<span class="hot-words-highlight">'+keyWordsArr[i]+'</span>'
+            }else if(type == 'sensitiveWords'){
+              keyWordsJson.value = repeatTimes("*",keyWordsArr[i].length);
+            }else {
+              keyWordsJson.value = keyWordsArr[i]
+            }
+            keyWordsJsonArr.push(keyWordsJson);
+        }
+        var reg;
+        for(var i = 0; i < keyWordsJsonArr.length; i++){
+            var item = keyWordsJsonArr[i]; 
+            if(type == 'hotWords'){
+              reg = new RegExp(item.key,"ig");
+            }
+            if(type == 'sensitiveWords'){
+              reg = new RegExp(item.key+"(?!([^<]*>)|([^<]*<\/a>))","ig");  
+            }
+            contentViewsInnerHTML = contentViewsInnerHTML.replace(reg,item.value);
+            contentTitleInnerHTML = contentTitleInnerHTML.replace(reg,item.value);
+        }
+        getContentViews.innerHTML=contentViewsInnerHTML;
+        getContentTitle.innerHTML=contentTitleInnerHTML;
+      }
+    }
+</script>
+        <div class="hide-article-box hide-article-pos text-center">
+            <div class="vip-mask">
+                <a id="getVipUrl" href="http://passport.csdn.net/account/login?from=https://blog.csdn.net/qq_40194498/article/details/80063960" data-report-query='' data-report-view='{"mod":"popu_786","spm":"1001.2101.3001.4249","dest":"https://blog.csdn.net/qq_40194498/article/details/80063960","strategy":"pc_vip_readmore","ab":"new"}' data-report-click='{"mod":"popu_786","spm":"1001.2101.3001.4249","dest":"https://blog.csdn.net/qq_40194498/article/details/80063960","strategy":"pc_vip_readmore","ab":"new"}' target="_blank" rel="noopener"class="openvippay">
+                    <svg id="csdnc-memberhead" viewBox="0 0 1303 1024">
+                        <path d="M1129.770822 419.281455A93.090909 93.090909 0 1 1 1210.201367 465.454545h-2.141091l-56.971636 478.952728c-5.399273 45.242182-46.731636 79.592727-95.790545 79.592727H249.875549c-48.965818 0-90.112-34.164364-95.697454-79.406545L95.34464 465.454545H93.110458a93.090909 93.090909 0 1 1 80.337455-46.08l229.189818 142.056728 187.485091-398.429091A93.184 93.184 0 0 1 651.655913 0a93.090909 93.090909 0 0 1 61.160727 163.281455l187.485091 398.149818 229.469091-142.149818z" fill="#FDD840"></path>
+                        <path d="M1117.110458 372.363636a93.090909 93.090909 0 1 1 93.090909 93.090909h-2.141091l-56.971636 478.952728c-5.399273 45.242182-46.731636 79.592727-95.790545 79.592727H652.586822C651.935185 845.451636 651.655913 504.087273 651.655913 0a93.090909 93.090909 0 0 1 61.160727 163.281455l187.485091 398.149818 229.469091-142.149818A93.090909 93.090909 0 0 1 1117.110458 372.363636z" fill="#FFBE00"></path>
+                    </svg>
+                    本文为VIP专属文章，单击开通VIP</a>
+            </div>
+        </div>
+<div class="more-toolbox" id="toolBarBox">
+    <span id="fixedBar"></span>
+    <div class="left-toolbox">
+        <ul class="toolbox-list">
+            <li class="tool-item tool-item-size tool-active is-like" id="is-like"><a>
+            <img style="display:none;" id="is-like-imgactive-animation-like" class="animation-dom active-animation" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarThumbUpactive.png" alt="">
+            <img class="isactive" style="display:none" id="is-like-imgactive" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarThumbUpactive.png" alt="">
+            <img class="isdefault" style="display:block" id="is-like-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarThumbUp.png" alt="">   
+            <span class="name" id="is-like-span">点赞</span>
+            <span id="spanCount" class="count">
+                    24
+            </span>
+            </a></li>
+            <li class="tool-item tool-item-size tool-active tool-item-comment">
+                <a href="#commentBox">
+                    <img class="isdefault" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarComment.png" alt="">
+                    <img class="isactive" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCommentactive.png" style="display:none;" alt="">
+                    <span class="name">评论</span>
+                    <span class="count">
+                        2
+                    </span>
+                </a>
+            </li>
+            <li class="tool-item tool-item-size tool-active tool-QRcode" id="tool-share">
+                <a href="javascript:;" data-report-click='{"mod":"1582594662_002","spm":"1001.2101.3001.4129","ab":"new"}'>
+                    <img class="isdefault" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarShare.png" alt="">
+                    <img class="isactive" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarShareactive.png" style="display:none;" alt="">
+                    <span class="name">分享</span>
+                </a>
+                <div class="QRcode" id="tool-QRcode" style="left:-92%;">
+                    <span id="QRcode-close">x</span>
+                    <p class="title">
+                    海报分享
+                    </p>
+                    <div id='shareCode'></div>
+                    <p>
+                    扫一扫，分享海报
+                    </p>
+                </div>
+            </li>
+            <li class="tool-item tool-item-size tool-active is-collection ">
+                <a href="javascript:;" data-report-click='{"mod":"popu_824","spm":"1001.2101.3001.4130","ab":"new"}'>
+                    <img style="display:none" id="is-collection-img-collection" class="animation-dom active-animation" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive.png" alt="">
+                    <img class="isdefault" id="is-collection-img" style="display:block" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect.png" alt="">
+                    <img class="isactive" id="is-collection-imgactive" style="display:none" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive.png" alt="">
+                    <span class="name" id="is-collection">收藏</span>
+                    <span class="count get-collection" id="get-collection">
+                        137
+                    </span>
+                </a>
+            </li>
+            <li class="tool-item tool-item-size tool-active tool-reward">
+                <a  id="toolreward" data-report-click='{"mod":"popu_830","spm":"1001.2101.3001.4237","dest":"","ab":"new"}'>
+                    <img class="isdefault" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarReward.png" alt="">
+                    <img class="isactive" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarRewardactive.png" style="display:none;" alt="">
+                    <span class="name">打赏</span>
+                </a>
+<div id="reward" class="reward-box">
+	<p class="rewad-title">打赏<span class="reward-close"><svg t="1567152543821" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10924" xmlns:xlink="http://www.w3.org/1999/xlink" width="12" height="12"><defs><style type="text/css"></style></defs><path d="M512 438.378667L806.506667 143.893333a52.032 52.032 0 1 1 73.6 73.621334L585.621333 512l294.485334 294.485333a52.074667 52.074667 0 0 1-73.6 73.642667L512 585.621333 217.514667 880.128a52.053333 52.053333 0 1 1-73.621334-73.642667L438.378667 512 143.893333 217.514667a52.053333 52.053333 0 1 1 73.621334-73.621334L512 438.378667z" fill="" p-id="10925"></path></svg></span></p>
+	<dl>
+		<dd>
+		<a href="https://blog.csdn.net/qq_40194498" data-report-click='{"mod":"popu_379","dest":"https://blog.csdn.net/qq_40194498","ab":"new"}'>
+			<img src="https://profile.csdnimg.cn/8/1/2/3_qq_40194498" class="avatar_pic">
+		</a>
+		</dd>
+		<dt>
+			<p class="blog-name">52_赫兹的鲸</p>
+			<p class="blog-discript">你的鼓励将是我创作的最大动力</p>
+		</dt>
+	</dl>
+	<div class="change-bt-box">
+		<span class="reward-bt reward-bt-coin">C币</span>
+		<span class="reward-bt-space"></span>
+		<span class="reward-bt reward-bt-money reward-bt-active">余额</span>
+	</div>
+	<div class="money-box">
+			<span class="choose_money choosed" data-id="2">2C币</span>
+			<span class="choose_money " data-id="4">4C币</span>
+			<span class="choose_money " data-id="6">6C币</span>
+			<span class="choose_money " data-id="10">10C币</span>
+			<span class="choose_money " data-id="20">20C币</span>
+			<span class="choose_money " data-id="50">50C币</span>
+	</div>
+	<div class="sure-box">
+		<p class="is-have-money"><a class="reward-sure">确定</a></p>
+	</div>
+</div>
+            </li>
+            <li class="tool-item tool-item-size tool-active tool-more">
+              <a class="article-report">
+                <img class="isdefault" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarReport.png" alt="">
+                <img class="isactive" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarReportactive.png" style="display:none;" alt="">
+                <span class="name">举报</span>
+              </a>
+            </li>
+            <li class="tool-item">
+                    <a class="tool-attend tool-bt-button tool-bt-attend" href="javascript:;" data-report-view='{"mod":"1592215036_002","spm":"1001.2101.3001.4232","extend1":"关注"}'>关注</a>
+                <a class="tool-item-follow active-animation" style="display:none;">关注</a>
+            </li>
+            <li class="tool-item">
+                    <p class="company active" id="health-companies" href="javascript:;" >一键三连</p>
+                <span class="triplet-prompt">点赞Mark关注该博主, 随时了解TA的最新博文<img class="close-prompt" src="https://csdnimg.cn/release/blogv2/dist/pc/img/closePrompt.png"></span>
+            </li>
+        </ul>
+        <div style="display:flex">
+         </div>
+         <div class="hot-word-tip-box">
+          <span class="hot-word-text">已标记关键词</span>
+          <span class="hot-word-count"></span> 
+          <span class="hot-word-bar"></span>
+          <span class="hot-word-clear">清除标记</span>
+        </div>
+    </div>  
+</div>
+<script type=text/javascript crossorigin src="https://csdnimg.cn/release/phoenix/production/qrcode-7c90a92189.min.js"></script>
+<script src="//g.csdnimg.cn/??sharewx/1.2.1/sharewx.js" type="text/javascript"></script>
+<script type="text/javascript" crossorigin src="https://g.csdnimg.cn/collection-box/2.0.3/collection-box.js"></script>
+                <div id="dmp_ad_58" style="width:100%;overflow-x:hidden"><div id="kp_box_58" data-pid="58"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-format="fluid"
+     data-ad-layout-key="-gi-21+3s-18+2p"
+     data-ad-client="ca-pub-1076724771190722"
+     data-ad-slot="7696125606"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script><img class="pre-img-lasy" data-src="https://kunyu.csdn.net/1.png?p=58&a=3804&c=0&k=&spm=1001.2101.3001.5002&d=1&t=3&u=e1ce63a2bf3f4b3585fb1109dae910b2" style="display: block;width: 0px;height: 0px;"></div></div>
+            <div class="second-recommend-box recommend-box">
+<div class="recommend-item-box type_blog clearfix" data-url="https://blog.csdn.net/weixin_33762130/article/details/92894799"  data-report-view='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs\"}","index":"1","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/weixin_33762130/article/details/92894799"}'>
+	<div class="content-box">
+		<div class="content-blog display-flex">
+			<div class="title-box">
+				<a href="https://blog.csdn.net/weixin_33762130/article/details/92894799" class="tit ellipsis-online ellipsis-online-1" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs\"}","index":"1","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/weixin_33762130/article/details/92894799"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs'>
+					在<em>Qt</em>中使用sleep (转)
+				</a>
+			</div>
+			<div class="info-box display-flex">
+				<div class="info">
+					<a href="https://blog.csdn.net/weixin_33762130" target="_blank"><span class="blog-title">weixin_33762130的博客</span></a>
+				</div>
+				<div class="info display-flex">
+					<span class="info-block time">03-20</span>
+					<span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					1583
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="desc-box">
+			<a href="https://blog.csdn.net/weixin_33762130/article/details/92894799" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs\"}","index":"1","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/weixin_33762130/article/details/92894799"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs'>
+				<div class="desc ellipsis-online ellipsis-online-1">关于sleep函数，我们先来看一下他的作用：sleep函数是使调用sleep函数的线程休眠，线程主动放弃时间片。当经过指定的时间间隔后，再启动线程，继续执行代码。sleep函数并不能起到定时的作用，主要作用是<em>延时</em>。在一些多线程中可能会看到sleep(0);其主要目的是让出时间片。sleep函数的精度非常低，当系统越繁忙的时候它精度也就越低，有时候我们休眠1秒，可能3秒后才能继...</div>
+			</a>
+		</div>
+	</div>
 </div>
             </div>
-            <div class="postDesc">posted @ 
-<span id="post-date">2017-10-19 13:22</span>&nbsp;
-<a href="https://www.cnblogs.com/lifan3a/">苍月代表我</a>&nbsp;
-阅读(<span id="post_view_count">2472</span>)&nbsp;
-评论(<span id="post_comment_count">0</span>)&nbsp;
-<a href="https://i.cnblogs.com/EditArticles.aspx?postid=7691974" rel="nofollow">编辑</a>&nbsp;
-<a href="javascript:void(0)" onclick="AddToWz(7691974);return false;">收藏</a></div>
+<a id="commentBox" name="commentBox"></a>
+<div class="comment-box">
+	<div class="comment-edit-box d-flex">
+		<a id="commentsedit"></a>
+		<div class="user-img">
+			<a href="javascript:void(0);" >
+				<img class="show_loginbox" src="https://g.csdnimg.cn/static/user-img/anonymous-User-img.png">
+			</a>
+		</div>
+		<form id="commentform">
+			<img class="comment-sofa-flag" src="https://csdnimg.cn/release/blogv2/dist/pc/img/commentFlag@2x.png">
+      <textarea class="comment-content" name="comment_content" id="comment_content" placeholder="优质评论可以帮助作者获得更高权重" maxlength="1000"></textarea>
+			<div class="comment-emoticon"><img class="comment-emoticon-img" data-url="https://csdnimg.cn/release/blogv2/dist/pc/img/" src="https://csdnimg.cn/release/blogv2/dist/pc/img/emoticon.png" alt="表情包"></div> 
+      <span class="comment-emoticon-tip">插入表情</span>
+      <div class="comment-emoticon-box">
+        <div class="comment-emoticon-img-box">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:001.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/001.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:002.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/002.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:003.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/003.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:004.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/004.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:005.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/005.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:006.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/006.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:007.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/007.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:008.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/008.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:009.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/009.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:010.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/010.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:011.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/011.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:012.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/012.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:013.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/013.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:014.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/014.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:015.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/015.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:016.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/016.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:017.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/017.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:018.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/018.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:019.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/019.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:020.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/020.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:021.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/021.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:022.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/022.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:023.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/023.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:024.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/024.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:025.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/025.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:026.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/026.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:027.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/027.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:028.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/028.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:029.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/029.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:030.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/030.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:031.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/031.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:032.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/032.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:033.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/033.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:034.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/034.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:035.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/035.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:036.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/036.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:037.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/037.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:038.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/038.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:039.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/039.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:040.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/040.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:041.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/041.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:042.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/042.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:043.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/043.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:044.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/044.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:045.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/045.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:046.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/046.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:047.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/047.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:048.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/048.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:049.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/049.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:050.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/050.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:051.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/051.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:052.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/052.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:053.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/053.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:054.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/054.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:055.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/055.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:056.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/056.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:057.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/057.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:058.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/058.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:059.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/059.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:060.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/060.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:061.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/061.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:062.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/062.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:063.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/063.png">
+            <img class="emoticon-monkey-img" data-emoticon="[face]monkey2:064.png[/face]" src="https://g.csdnimg.cn/static/face/monkey2/064.png">
         </div>
-	    
-	    
-    </div><!--end: topics 文章、评论容器-->
-</div>
-<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
-<script>markdown_highlight();</script>
-<script>
-    var allowComments = true, cb_blogId = 207548, cb_blogApp = 'lifan3a', cb_blogUserGuid = 'd365fd02-4b7c-e411-b908-9dcfd8948a71';
-    var cb_entryId = 7691974, cb_entryCreatedDate = '2017-10-19 13:22', cb_postType = 2;
-    updatePostStats(
-        [cb_entryId],
-        function(id, count) { $("#post_view_count").text(count) },
-        function(id, count) { $("#post_comment_count").text(count) })
-</script>
-<a name="!comments"></a>
-<div id="blog-comments-placeholder"></div>
-<div id="comment_form" class="commentform">
-    <a name="commentform"></a>
-    <div id="divCommentShow"></div>
-    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
-    <div id="comment_form_container"></div>
-    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
-    <div id="ad_t2"></div>
-    <div id="opt_under_post"></div>
-    <div id="cnblogs_c1" class="c_ad_block">
-        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
-    </div>
-    <div id="under_post_news"></div>
-    <div id="cnblogs_c2" class="c_ad_block">
-        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
-    </div>
-    <div id="under_post_kb"></div>
-    <div id="HistoryToday" class="c_ad_block"></div>
-    <script type="text/javascript">
-       var commentManager = new blogCommentManager();
-       commentManager.renderComments(0);
-       fixPostBody();
-       deliverBigBanner();
-setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
-       deliverC1C2();
-       loadNewsAndKb();
-       loadBlogSignature();
-LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
-       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
-       loadOptUnderPost();
-       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
-   </script>
-</div>
+      </div>
+      <div class="opt-box">
+				<div id="ubbtools" class="add_code">
+					<a href="#insertcode" code="code" target="_self"><i class="icon iconfont icon-daima"></i></a>
+				</div>
+				<input type="hidden" id="comment_replyId" name="comment_replyId">
+				<input type="hidden" id="article_id" name="article_id" value="80063960">
+				<input type="hidden" id="comment_userId" name="comment_userId" value="">
+				<input type="hidden" id="commentId" name="commentId" value="">
+				<div class="dropdown" id="myDrap">
+					<a class="dropdown-face d-flex align-items-center" data-toggle="dropdown" role="button"
+						aria-haspopup="true" aria-expanded="false">
+						<div class="txt-selected text-truncate">添加代码片</div>
+						<svg class="icon d-block" width="200px" height="100.00px" viewBox="0 0 2048 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path  d="M597.33333292 298.666667h853.333334L1023.99999992 725.333333 597.33333292 298.666667z"  /></svg>
+					</a>
+					<ul class="dropdown-menu" id="commentCode" aria-labelledby="drop4">
+						<li><a data-code="html">HTML/XML</a></li>
+						<li><a data-code="objc">objective-c</a></li>
+						<li><a data-code="ruby">Ruby</a></li>
+						<li><a data-code="php">PHP</a></li>
+						<li><a data-code="csharp">C</a></li>
+						<li><a data-code="cpp">C++</a></li>
+						<li><a data-code="javascript">JavaScript</a></li>
+						<li><a data-code="python">Python</a></li>
+						<li><a data-code="java">Java</a></li>
+						<li><a data-code="css">CSS</a></li>
+						<li><a data-code="sql">SQL</a></li>
+						<li><a data-code="plain">其它</a></li>
+					</ul>
+				</div>
+				<div class="right-box" id="rightBox" data-type="2">
+							<span id="tip_comment" class="tip">还能输入<em>1000</em>个字符</span>
+							<a data-report-click='{"mod":"1582594662_003","spm":"1001.2101.3001.4227","ab":"new"}'><input type="submit"
+									class="btn btn-sm btn-comment" value="发表评论"></a>
+				</div>
+			</div>
+		</form>
+		<input type="button" class="bt-comment-show" value="评论">
+	</div>
+	<div class="comment-list-container">
+		<a id="comments"></a>
+		<div class="comment-list-box">
+		</div>
+		<div id="commentPage" class="pagination-box d-none"></div>
+		<div class="opt-box text-center">
+			<div class="btn btn-sm btn-link-blue" id="btnMoreComment"></div>
+		</div>
+	</div>
+</div>            <div class="recommend-box insert-baidu-box">
+                <div class="recommend-item-box clearfix" style="display:none"></div>
+<div class="recommend-item-box type_blog clearfix" data-url="https://blog.csdn.net/huhaowa/article/details/82872436"  data-report-view='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.baidujs\"}","index":"2","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/huhaowa/article/details/82872436"}'>
+	<div class="content-box">
+		<div class="content-blog display-flex">
+			<div class="title-box">
+				<a href="https://blog.csdn.net/huhaowa/article/details/82872436" class="tit ellipsis-online ellipsis-online-1" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.baidujs\"}","index":"2","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/huhaowa/article/details/82872436"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.baidujs'>
+					<em>QT</em>主线程中怎么写<em>延时</em>函数sleep
+				</a>
+			</div>
+			<div class="info-box display-flex">
+				<div class="info">
+					<a href="https://blog.csdn.net/huhaowa" target="_blank"><span class="blog-title">huhaowa的博客</span></a>
+				</div>
+				<div class="info display-flex">
+					<span class="info-block time">09-27</span>
+					<span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					4112
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="desc-box">
+			<a href="https://blog.csdn.net/huhaowa/article/details/82872436" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.baidujs\"}","index":"2","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/huhaowa/article/details/82872436"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.baidujs'>
+				<div class="desc ellipsis-online ellipsis-online-1">提出问题：
 
-	</div><!--end: forFlow -->
-	</div><!--end: mainContent 主体内容容器-->
-	<div id="sideBar">
-		<div id="sideBarMain">
+<em>Qt</em> 为什么没有提供跨平台的 sleep 函数？
+	使用平台相关的 Sleep 或 nanosleep 以后，界面为什么没有反应？
+	<em>QT</em>hread 中提供了protected 权限的 sleep 函数，如何用到主线程中？
+	使用 <em>QT</em>est 中的 qSleep，在windows下如何隐藏控制台？
+这些问题其实归结为一点：在主线程中使用这些函数是一种错误，这会直接导致界面无法刷新，用...</div>
+			</a>
+		</div>
+	</div>
+</div>
+<div class="recommend-item-box type_blog clearfix" data-url="https://blog.csdn.net/qq_41429220/article/details/96627952"  data-report-view='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.baidujs\"}","index":"3","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/qq_41429220/article/details/96627952"}'>
+	<div class="content-box">
+		<div class="content-blog display-flex">
+			<div class="title-box">
+				<a href="https://blog.csdn.net/qq_41429220/article/details/96627952" class="tit ellipsis-online ellipsis-online-1" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.baidujs\"}","index":"3","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/qq_41429220/article/details/96627952"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.baidujs'>
+					<em>QT</em>的<em>延时</em>函数
+				</a>
+			</div>
+			<div class="info-box display-flex">
+				<div class="info">
+					<a href="https://blog.csdn.net/qq_41429220" target="_blank"><span class="blog-title">Anthony&#39;s Blog</span></a>
+				</div>
+				<div class="info display-flex">
+					<span class="info-block time">07-20</span>
+					<span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					5779
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="desc-box">
+			<a href="https://blog.csdn.net/qq_41429220/article/details/96627952" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.baidujs\"}","index":"3","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/qq_41429220/article/details/96627952"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.baidujs'>
+				<div class="desc ellipsis-online ellipsis-online-1"><em>延时</em>函数在收发数据的时候用处很大，在其他方面也有用处
+
+这里提供四种<em>方法</em>：
+1、多线程程序
+使用<em>QT</em>hread::sleep()或者<em>QT</em>hread::msleep()或<em>QT</em>hread::usleep()或<em>QT</em>hread::wait()进行<em>延时</em><em>处理</em>。Sleep不会释放对象锁，其他线程无法访问对象，因此会阻塞线程；而Wait会释放对象锁，使得其他线程能够访问该对象。
+2、自定义<em>延时</em>函数：使用QEve...</div>
+			</a>
+		</div>
+	</div>
+</div>
+		<dl id="recommend-item-box-tow" class="recommend-item-box type_blog clearfix">
 			
-<div id="sidebar_c3"></div>
-			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
-			<div id="leftcontentcontainer">
-				<div id="blog-sidecolumn"></div>
-                    <script>loadBlogSideColumn();</script>
-			</div>			
-		</div><!--end: sideBarMain -->
-	</div><!--end: sideBar 侧边栏容器 -->
-	<div class="clear"></div>
-	</div><!--end: main -->
-	<div class="clear"></div>
-	<div id="footer">
-		<!--done-->
-Copyright &copy; 2021 苍月代表我
-<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+		</dl>
+<div class="recommend-item-box type_blog clearfix" data-url="https://blog.csdn.net/pbl18392021230/article/details/71624281"  data-report-view='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-4.baidujs\"}","index":"4","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/pbl18392021230/article/details/71624281"}'>
+	<div class="content-box">
+		<div class="content-blog display-flex">
+			<div class="title-box">
+				<a href="https://blog.csdn.net/pbl18392021230/article/details/71624281" class="tit ellipsis-online ellipsis-online-1" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-4.baidujs\"}","index":"4","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/pbl18392021230/article/details/71624281"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-4.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-4.baidujs'>
+					<em>QT</em>之实现<em>延时</em>
+				</a>
+			</div>
+			<div class="info-box display-flex">
+				<div class="info">
+					<a href="https://blog.csdn.net/pbl18392021230" target="_blank"><span class="blog-title">pbl18392021230的博客</span></a>
+				</div>
+				<div class="info display-flex">
+					<span class="info-block time">05-11</span>
+					<span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					1201
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="desc-box">
+			<a href="https://blog.csdn.net/pbl18392021230/article/details/71624281" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-4.baidujs\"}","index":"4","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/pbl18392021230/article/details/71624281"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-4.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-4.baidujs'>
+				<div class="desc ellipsis-online ellipsis-online-1">1 、在.h文件中，添加头文件
+&nbsp;#include
+2、声明<em>延时</em>函数
+void sleep(unsigned int msec); &nbsp;//msec为毫秒
+3、在.cpp文件中，实现<em>延时</em>函数
+void myMenu::sleep(unsigned int msec) &nbsp;//msec为毫秒
+{
+<em>QT</em>ime reachTime = <em>QT</em>ime::currentTime().addMSecs</div>
+			</a>
+		</div>
+	</div>
+</div>
+<div class="recommend-item-box type_blog clearfix" data-url="https://blog.csdn.net/kuLong_x/article/details/113591047"  data-report-view='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-5.baidujs\"}","index":"5","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/kuLong_x/article/details/113591047"}'>
+	<div class="content-box">
+		<div class="content-blog display-flex">
+			<div class="title-box">
+				<a href="https://blog.csdn.net/kuLong_x/article/details/113591047" class="tit ellipsis-online ellipsis-online-1" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-5.baidujs\"}","index":"5","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/kuLong_x/article/details/113591047"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-5.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-5.baidujs'>
+					<em>Qt</em>中怎样实现<em>延时</em>
+				</a>
+			</div>
+			<div class="info-box display-flex">
+				<div class="info">
+					<a href="https://blog.csdn.net/kuLong_x" target="_blank"><span class="blog-title">kuLong_x的博客</span></a>
+				</div>
+				<div class="info display-flex">
+					<span class="info-block time">02-03</span>
+					<span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					11
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="desc-box">
+			<a href="https://blog.csdn.net/kuLong_x/article/details/113591047" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-5.baidujs\"}","index":"5","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/kuLong_x/article/details/113591047"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-5.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-5.baidujs'>
+				<div class="desc ellipsis-online ellipsis-online-1"><em>Qt</em>中怎样实现<em>延时</em>
+前言：在<em>Qt</em>中，并没有提供相应的<em>延时</em>函数。至于<em>Qt</em>中的同名函数sleep，它和Windows中的Sleep函数作用是不同的，并不是专门用来<em>延时</em>，而是用来暂停线程的执行,所以自己写一个函数sleep、来实现<em>延时</em>。
+
+首先，包含相应的头文件，再将要<em>延时</em>的毫秒数作为参数。另外，该函数无须返回值，所以定义为void
+
+#include&lt;<em>QT</em>ime&gt;
+void sleep(unsigned int msec);//<em>延时</em>功能
 
 
 
-	</div><!--end: footer -->
-</div><!--end: home 自定义的最大容器 -->
+我们调用<em>QT</em>ime的currentTime函数得到当前系</div>
+			</a>
+		</div>
+	</div>
+</div>
+<div class="recommend-item-box type_blog clearfix" data-url="https://blog.csdn.net/Wyq_nathan/article/details/18794693"  data-report-view='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-6.baidujs\"}","index":"6","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/Wyq_nathan/article/details/18794693"}'>
+	<div class="content-box">
+		<div class="content-blog display-flex">
+			<div class="title-box">
+				<a href="https://blog.csdn.net/Wyq_nathan/article/details/18794693" class="tit ellipsis-online ellipsis-online-1" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-6.baidujs\"}","index":"6","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/Wyq_nathan/article/details/18794693"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-6.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-6.baidujs'>
+					<em>Qt</em>中几种<em>延时</em><em>方法</em>
+				</a>
+			</div>
+			<div class="info-box display-flex">
+				<div class="info">
+					<a href="https://blog.csdn.net/Wyq_nathan" target="_blank"><span class="blog-title">信笔涂鸦</span></a>
+				</div>
+				<div class="info display-flex">
+					<span class="info-block time">01-26</span>
+					<span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					3752
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="desc-box">
+			<a href="https://blog.csdn.net/Wyq_nathan/article/details/18794693" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-6.baidujs\"}","index":"6","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/Wyq_nathan/article/details/18794693"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-6.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-6.baidujs'>
+				<div class="desc ellipsis-online ellipsis-online-1"><em>QT</em>ime&nbsp;
+
+   1: <em>QT</em>ime t;
+   2: t.start();
+   3: while(t.elapsed()
+   4: QCoreApplication::processEvents();
+
+
+不停地<em>处理</em>事件，以使得程序保持响应。
+
+
+QElapsedTimer&nbsp;
+这是<em>Qt</em>4.7引入的新的类，和<em>QT</em>ime相比，它提供了更快的计算 elapsed 时间的方</div>
+			</a>
+		</div>
+	</div>
+</div>
+<div class="recommend-item-box type_blog clearfix" data-url="https://blog.csdn.net/weixin_38416696/article/details/92830988"  data-report-view='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.baidujs\"}","index":"7","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/weixin_38416696/article/details/92830988"}'>
+	<div class="content-box">
+		<div class="content-blog display-flex">
+			<div class="title-box">
+				<a href="https://blog.csdn.net/weixin_38416696/article/details/92830988" class="tit ellipsis-online ellipsis-online-1" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.baidujs\"}","index":"7","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/weixin_38416696/article/details/92830988"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.baidujs'>
+					<em>Qt</em> <em>延时</em>函数
+				</a>
+			</div>
+			<div class="info-box display-flex">
+				<div class="info">
+					<a href="https://blog.csdn.net/weixin_38416696" target="_blank"><span class="blog-title">/* */</span></a>
+				</div>
+				<div class="info display-flex">
+					<span class="info-block time">06-19</span>
+					<span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					3767
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="desc-box">
+			<a href="https://blog.csdn.net/weixin_38416696/article/details/92830988" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.baidujs\"}","index":"7","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://blog.csdn.net/weixin_38416696/article/details/92830988"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.baidujs'>
+				<div class="desc ellipsis-online ellipsis-online-1"><em>Qt</em><em>延时</em>函数分为两大类，一类是阻塞当前线程，另一类是不阻塞当前线程。
+
+一，阻塞当前线程
+
+1,使用QElapsedTimer
+头文件：#include &lt;QElapsedTimer&gt;
 
 
-    
+void Widget::delay_3(int msec)
+{
+    QElapsedTimer t;
+    t.start();
+    while(t.elapsed()&lt;msec)...</div>
+			</a>
+		</div>
+	</div>
+</div>
+<div class="recommend-item-box type_blog clearfix" data-url="https://waleon.blog.csdn.net/article/details/50277095"  data-report-view='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-8.baidujs\"}","index":"8","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://waleon.blog.csdn.net/article/details/50277095"}'>
+	<div class="content-box">
+		<div class="content-blog display-flex">
+			<div class="title-box">
+				<a href="https://waleon.blog.csdn.net/article/details/50277095" class="tit ellipsis-online ellipsis-online-1" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-8.baidujs\"}","index":"8","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://waleon.blog.csdn.net/article/details/50277095"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-8.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-8.baidujs'>
+					《<em>Qt</em> 实战一二三》
+				</a>
+			</div>
+			<div class="info-box display-flex">
+				<div class="info">
+					<a href="https://blog.csdn.net/u011012932" target="_blank"><span class="blog-title">青春不老，奋斗不止！</span></a>
+				</div>
+				<div class="info display-flex">
+					<span class="info-block time">12-12</span>
+					<span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					25万+
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="desc-box">
+			<a href="https://waleon.blog.csdn.net/article/details/50277095" target="_blank"  data-report-click='{"ab":"new","mod":"popu_387","extra":"{\"utm_medium\":\"distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-8.baidujs\"}","index":"8","strategy":"BlogCommendFromMachineLearnPai2","dest":"https://waleon.blog.csdn.net/article/details/50277095"}'  data-report-query='utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-8.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-8.baidujs'>
+				<div class="desc ellipsis-online ellipsis-online-1"><em>Qt</em> 基础与实战，主要包含：环境搭建、信号槽、事件机制、数据类型、常用部件/布局、对话框、QPainter 绘图等内容。</div>
+			</a>
+		</div>
+	</div>
+</div>
+            </div>
+            <div class="template-box">
+                <span>©️2020 CSDN</span>
+                <span>皮肤主题: 深蓝海洋</span>
+                <span> 设计师:CSDN官方博客</span>
+                <span>
+                    <a href="https://blog.csdn.net/" class="back-home c-blue c-blue-hover c-blue-focus">返回首页</a>
+                </span>
+            </div>
+<div class="blog-footer-bottom" style="margin-top:10px;"></div>
+<script src="https://g.csdnimg.cn/common/csdn-footer/csdn-footer.js" data-isfootertrack="false" type="text/javascript"></script>
+<script type="text/javascript">
+    window.csdn.csdnFooter.options = {
+        el: '.blog-footer-bottom',
+        type: 2
+    }
+</script>        </main>
+<aside class="blog_container_aside">
+    <div id="asideProfile" class="aside-box">
+    <div class="profile-intro d-flex">
+        <div class="avatar-box d-flex justify-content-center flex-column">
+            <a href="https://blog.csdn.net/qq_40194498" data-report-click='{"mod":"popu_379","spm":"1001.2101.3001.4121","dest":"https://blog.csdn.net/qq_40194498","ab":"new"}'>
+                <img src="https://profile.csdnimg.cn/8/1/2/3_qq_40194498" class="avatar_pic">
+            </a>
+        </div>
+        <div class="user-info d-flex flex-column profile-intro-name-box">
+            <div class="profile-intro-name-boxTop">
+                <a href="https://blog.csdn.net/qq_40194498" class="" id="uid" title="52_赫兹的鲸" data-report-click='{"mod":"popu_379","spm":"1001.2101.3001.4122","dest":"https://blog.csdn.net/qq_40194498","ab":"new"}'>
+                    <span class="name " username="qq_40194498">52_赫兹的鲸</span>
+                </a>
+                <span>
+                </span>
+                <span class="flag expert-blog">
+                <span class="bubble">CSDN认证博客专家</span>
+                </span>
+                <span class="flag company-blog">
+                <span class="bubble">CSDN认证企业博客</span>
+                </span>
+            </div>
+            <div class="profile-intro-name-boxFooter">
+                <span class="personal-home-page personal-home-years">码龄3年</span>
+                    <span class="personal-home-page">
+                    <a class="personal-home-certification" href="https://i.csdn.net/#/uc/profile?utm_source=14998968" target="_blank" title="暂无认证">
+                    <img src="https://csdnimg.cn/identity/nocErtification.png" alt="">
+                    暂无认证
+                    </a>
+                    </span>
+            </div>
+        </div>
+    </div>
+    <div class="data-info d-flex item-tiling">
+        <dl class="text-center" title="150">
+            <a href="https://blog.csdn.net/qq_40194498" data-report-click='{"mod":"1598321000_001","spm":"1001.2101.3001.4310"}' data-report-query="t=1">  
+                <dt><span class="count">150</span></dt>
+                <dd class="font">原创</dd>
+            </a>
+        </dl>
+        <dl class="text-center" data-report-click='{"mod":"1598321000_002","spm":"1001.2101.3001.4311"}' title="1131">
+            <a href="https://blog.csdn.net/rank/writing_rank" target="_blank">
+                <dt><span class="count">1131</span></dt>
+                <dd class="font">周排名</dd>
+            </a>
+        </dl>
+        <dl class="text-center" title="6541">
+            <a href="https://blog.csdn.net/rank/writing_rank_total" data-report-click='{"mod":"1598321000_003","spm":"1001.2101.3001.4312"}' target="_blank">
+                <dt><span class="count">6541</span></dt>
+                <dd class="font">总排名</dd>
+            </a>
+        </dl>
+        <dl class="text-center" style="min-width:58px" title="911280">  
+            <dt><span class="count">91万+</span></dt>
+            <dd>访问</dd>
+        </dl>
+        <dl class="text-center" title="6级,点击查看等级说明">
+            <dt><a href="https://blog.csdn.net/home/help.html#level" target="_blank">
+                <img class="level" src="https://csdnimg.cn/identity/blog6.png">
+            </a>
+            </dt>
+            <dd>等级</dd>
+        </dl>
+    </div>
+    <div class="item-rank"></div>
+    <div class="data-info d-flex item-tiling">
+        <dl class="text-center" title="7602">
+            <dt><span class="count">7602</span></dt>
+            <dd>积分</dd>
+        </dl>
+         <dl class="text-center" id="fanBox" title="607">
+            <dt><span class="count" id="fan">607</span></dt>
+            <dd>粉丝</dd>
+        </dl>
+        <dl class="text-center" title="348">
+            <dt><span class="count">348</span></dt>
+            <dd>获赞</dd>
+        </dl>
+        <dl class="text-center" title="179">
+            <dt><span class="count">179</span></dt>
+            <dd>评论</dd>
+        </dl>
+        <dl class="text-center" title="1832">
+            <dt><span class="count">1832</span></dt>
+            <dd>收藏</dd>
+        </dl>
+    </div>
+    <div class="aside-box-footer" data-report-view='{"spm":"3001.4296"}'>
+        <div class="badge-box d-flex">
+            <div class="badge d-flex">
+                <div class="icon-badge" title="专栏达人">
+                    <div class="mouse-box">
+                        <img class="medal-img" data-report-click='{"spm":"3001.4296"}' src="https://csdnimg.cn/medal/zhuanlandaren@240.png" alt="专栏达人">
+                    </div>
+                </div>
+                <div class="icon-badge" title="持之以恒">
+                    <div class="mouse-box">
+                        <img class="medal-img" data-report-click='{"spm":"3001.4296"}' src="https://csdnimg.cn/medal/chizhiyiheng@240.png" alt="持之以恒">
+                    </div>
+                </div>
+                <div class="icon-badge" title="勤写标兵Lv2">
+                    <div class="mouse-box">
+                        <img class="medal-img" data-report-click='{"spm":"3001.4296"}' src="https://csdnimg.cn/medal/qixiebiaobing2@240.png" alt="勤写标兵Lv2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="profile-intro-name-boxOpration">
+        <div class="opt-letter-watch-box">
+        <a class="bt-button personal-letter" href="https://im.csdn.net/chat/qq_40194498" target="_blank" rel="noopener">私信</a>
+        </div>
+        <div class="opt-letter-watch-box"> 
+            <a class="personal-watch bt-button" id="btnAttent" >关注</a>  
+        </div>
+    </div>
+</div>
+<div id="asideSearchArticle" class="aside-box">
+	<div class="aside-content search-comter">
+    <div class="aside-search aside-search-blog">         
+        <input type="text" class="input-serch-blog" name="" autocomplete="off" value="" id="search-blog-words" placeholder="搜博主文章">
+        <a class="btn-search-blog">
+                    <img src="//csdnimg.cn/cdn/content-toolbar/csdn-sou.png?v=1587021042">
+        </a>
+    </div>
+    </div>
+</div>
+
+
+<div id="asideHotArticle" class="aside-box">
+	<h3 class="aside-title">热门文章</h3>
+	<div class="aside-content">
+		<ul class="hotArticle-list">
+			<li>
+				<a href="https://blog.csdn.net/qq_40194498/article/details/79849807" target="_blank"  data-report-click='{"mod":"popu_541","spm":"1001.2101.3001.4139","dest":"https://blog.csdn.net/qq_40194498/article/details/79849807","ab":"new"}'>
+				QML入门教程：一、QML和QtQuick简介以及QML实例
+					<img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					<span class="read">96776</span>
+                </a>
+			</li>
+			<li>
+				<a href="https://blog.csdn.net/qq_40194498/article/details/80063960" target="_blank"  data-report-click='{"mod":"popu_541","spm":"1001.2101.3001.4139","dest":"https://blog.csdn.net/qq_40194498/article/details/80063960","ab":"new"}'>
+				Qt延时处理的四种方法
+					<img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					<span class="read">49642</span>
+                </a>
+			</li>
+			<li>
+				<a href="https://blog.csdn.net/qq_40194498/article/details/79666903" target="_blank"  data-report-click='{"mod":"popu_541","spm":"1001.2101.3001.4139","dest":"https://blog.csdn.net/qq_40194498/article/details/79666903","ab":"new"}'>
+				Qt-QCustomplot画静态、动态曲线教程图解
+					<img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					<span class="read">44415</span>
+                </a>
+			</li>
+			<li>
+				<a href="https://blog.csdn.net/qq_40194498/article/details/79650641" target="_blank"  data-report-click='{"mod":"popu_541","spm":"1001.2101.3001.4139","dest":"https://blog.csdn.net/qq_40194498/article/details/79650641","ab":"new"}'>
+				Qt基本图形绘制（圆、圆角矩形、圆弧、椭圆、扇形等）
+					<img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					<span class="read">42266</span>
+                </a>
+			</li>
+			<li>
+				<a href="https://blog.csdn.net/qq_40194498/article/details/79171149" target="_blank"  data-report-click='{"mod":"popu_541","spm":"1001.2101.3001.4139","dest":"https://blog.csdn.net/qq_40194498/article/details/79171149","ab":"new"}'>
+				QT字体详解
+					<img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt="">
+					<span class="read">30253</span>
+                </a>
+			</li>
+		</ul>
+	</div>
+</div>
+<div id="asideCategory" class="aside-box flexible-box">
+    <h3 class="aside-title">分类专栏</h3>
+    <div class="aside-content">
+        <ul>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_9273141.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_9273141.html","ab":"new"}'>
+                    <img src="//img-blog.csdn.net/20180322161351057?imageView2/1/w/64/h/64/interlace/1" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">Qt之路</span>
+                    </span>
+                    <span class="count float-right">61篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_9608232.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_9608232.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756919.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">音视频</span>
+                    </span>
+                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7366338.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7366338.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756738.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">网络编程</span>
+                    </span>
+                    <span class="count float-right">9篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7384315.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7384315.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756780.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">数据库</span>
+                    </span>
+                    <span class="count float-right">6篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7388553.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7388553.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756916.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">QT</span>
+                    </span>
+                    <span class="count float-right">115篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7466389.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7466389.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756928.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">C++</span>
+                    </span>
+                    <span class="count float-right">17篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7488199.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7488199.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756724.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">MFC</span>
+                    </span>
+                    <span class="count float-right">3篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7542700.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7542700.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">编程通识</span>
+                    </span>
+                    <span class="count float-right">12篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7577954.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7577954.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756913.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">Qcustomplot</span>
+                    </span>
+                    <span class="count float-right">11篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7580030.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7580030.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756926.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">QML</span>
+                    </span>
+                    <span class="count float-right">15篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7648358.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7648358.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756738.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">程序人生</span>
+                    </span>
+                    <span class="count float-right">2篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7663438.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7663438.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756738.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">Qt样式表</span>
+                    </span>
+                    <span class="count float-right">10篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7758842.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7758842.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">QtXlsx</span>
+                    </span>
+                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7785246.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7785246.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756918.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">Linux</span>
+                    </span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7926951.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7926951.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">Qt+MSVC</span>
+                    </span>
+                    <span class="count float-right">3篇</span>
+                </a>
+            </li>
+            <li class="">
+                <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_8008977.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_8008977.html","ab":"new"}'>
+                    <img src="https://img-blog.csdnimg.cn/20201014180756754.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                    <span class="title oneline">
+                        <span class="text">互斥锁</span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <p class="text-center">
+        <a class="flexible-btn" data-fbox="aside-archive"><img class="look-more" src="https://csdnimg.cn/release/blogv2/dist/pc/img/arrowDownWhite.png" alt=""></a>
+    </p>
+</div>
+<div id="asideNewComments" class="aside-box">
+    <h3 class="aside-title">最新评论</h3>
+    <div class="aside-content">
+        <ul class="newcomment-list">
+            <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/qq_40194498/article/details/80063960#comments_14998830" data-report-click='{"mod":"popu_542","spm":"1001.2101.3001.4231","dest":"https://blog.csdn.net/qq_40194498/article/details/80063960#comments_14998830","ab":"new"}' data-report-view='{"mod":"popu_542","spm":"1001.2101.3001.4231","dest":"https://blog.csdn.net/qq_40194498/article/details/80063960#comments_14998830","ab":"new"}'>Qt延时处理的四种方法</a>
+                <p class="comment ellipsis">
+                    <a href="https://libolin.blog.csdn.net" class="user-name" target="_blank">水巷石子: </a>
+                    <span class="code-comments">博主写的非常清晰，对我很有帮助，谢谢，方便可以加个关注。共同学习！</span>
+                </p>
+            </li>
+            <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/qq_40194498/article/details/80063960#comments_14996149" data-report-click='{"mod":"popu_542","spm":"1001.2101.3001.4231","dest":"https://blog.csdn.net/qq_40194498/article/details/80063960#comments_14996149","ab":"new"}' data-report-view='{"mod":"popu_542","spm":"1001.2101.3001.4231","dest":"https://blog.csdn.net/qq_40194498/article/details/80063960#comments_14996149","ab":"new"}'>Qt延时处理的四种方法</a>
+                <p class="comment ellipsis">
+                    <a href="https://striveday.blog.csdn.net" class="user-name" target="_blank">strive_day: </a>
+                    <span class="code-comments">评论插个眼，待会回来看，哈哈</span>
+                </p>
+            </li>
+            <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/qq_40194498/article/details/80096579#comments_14983536" data-report-click='{"mod":"popu_542","spm":"1001.2101.3001.4231","dest":"https://blog.csdn.net/qq_40194498/article/details/80096579#comments_14983536","ab":"new"}' data-report-view='{"mod":"popu_542","spm":"1001.2101.3001.4231","dest":"https://blog.csdn.net/qq_40194498/article/details/80096579#comments_14983536","ab":"new"}'>Qcustomplot设置使用时间刻度坐标轴</a>
+                <p class="comment ellipsis">
+                    <a href="https://blog.csdn.net/lanmanck" class="user-name" target="_blank">#Page#: </a>
+                    <span class="code-comments">我这也是，请问解决了吗？</span>
+                </p>
+            </li>
+            <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/qq_40194498/article/details/80096579#comments_14918405" data-report-click='{"mod":"popu_542","spm":"1001.2101.3001.4231","dest":"https://blog.csdn.net/qq_40194498/article/details/80096579#comments_14918405","ab":"new"}' data-report-view='{"mod":"popu_542","spm":"1001.2101.3001.4231","dest":"https://blog.csdn.net/qq_40194498/article/details/80096579#comments_14918405","ab":"new"}'>Qcustomplot设置使用时间刻度坐标轴</a>
+                <p class="comment ellipsis">
+                    <a href="https://blog.csdn.net/weixin_45609423" class="user-name" target="_blank">＾０＾: </a>
+                    <span class="code-comments">为什么加上2.0系列的代码后，运行出来的横坐标时间一直都是八点</span>
+                </p>
+            </li>
+            <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/qq_40194498/article/details/79849807#comments_14886617" data-report-click='{"mod":"popu_542","spm":"1001.2101.3001.4231","dest":"https://blog.csdn.net/qq_40194498/article/details/79849807#comments_14886617","ab":"new"}' data-report-view='{"mod":"popu_542","spm":"1001.2101.3001.4231","dest":"https://blog.csdn.net/qq_40194498/article/details/79849807#comments_14886617","ab":"new"}'>QML入门教程：一、QML和QtQuick简介以及QML实例</a>
+                <p class="comment ellipsis">
+                    <a href="https://blog.csdn.net/hwx802746" class="user-name" target="_blank">All In ！！！: </a>
+                    <span class="code-comments">有用，已收藏</span>
+                </p>
+            </li>
+        </ul>
+    </div>
+</div>
+<div id="asideArchive" class="aside-box" style="display:block!important; width:300px;">
+    <h3 class="aside-title">最新文章</h3>
+    <div class="aside-content">
+        <ul class="inf_list clearfix">
+            <li class="clearfix">
+            <a href="https://blog.csdn.net/qq_40194498/article/details/113554358" target="_blank" data-report-click='{"mod":"popu_382","spm":"1001.2101.3001.4136","dest":"https://blog.csdn.net/qq_40194498/article/details/113554358","ab":"new"}' data-report-view='{"mod":"popu_382","dest":"https://blog.csdn.net/qq_40194498/article/details/113554358","ab":"new"}'>QListView当前页(可视范围)全选反选</a>
+            </li>
+            <li class="clearfix">
+            <a href="https://blog.csdn.net/qq_40194498/article/details/110949646" target="_blank" data-report-click='{"mod":"popu_382","spm":"1001.2101.3001.4136","dest":"https://blog.csdn.net/qq_40194498/article/details/110949646","ab":"new"}' data-report-view='{"mod":"popu_382","dest":"https://blog.csdn.net/qq_40194498/article/details/110949646","ab":"new"}'>Qt日历控件显示周数为：日一二三四五六</a>
+            </li>
+            <li class="clearfix">
+            <a href="https://blog.csdn.net/qq_40194498/article/details/110819935" target="_blank" data-report-click='{"mod":"popu_382","spm":"1001.2101.3001.4136","dest":"https://blog.csdn.net/qq_40194498/article/details/110819935","ab":"new"}' data-report-view='{"mod":"popu_382","dest":"https://blog.csdn.net/qq_40194498/article/details/110819935","ab":"new"}'>QListView等视图更改选中时文本颜色</a>
+            </li>
+        </ul>
+        <div class="archive-bar"></div>
+        <div class="archive-box">
+                <div class="archive-list-item"><a href="https://blog.csdn.net/qq_40194498/article/month/2021/02" target="_blank" data-report-click='{"mod":"popu_538","spm":"1001.2101.3001.4138","ab":"new","dest":""}'><span class="year">2021年</span><span class="num">1篇</span></a></div>
+                <div class="archive-list-item"><a href="https://blog.csdn.net/qq_40194498/article/month/2020/12" target="_blank" data-report-click='{"mod":"popu_538","spm":"1001.2101.3001.4138","ab":"new","dest":""}'><span class="year">2020年</span><span class="num">14篇</span></a></div>
+                <div class="archive-list-item"><a href="https://blog.csdn.net/qq_40194498/article/month/2019/12" target="_blank" data-report-click='{"mod":"popu_538","spm":"1001.2101.3001.4138","ab":"new","dest":""}'><span class="year">2019年</span><span class="num">22篇</span></a></div>
+                <div class="archive-list-item"><a href="https://blog.csdn.net/qq_40194498/article/month/2018/12" target="_blank" data-report-click='{"mod":"popu_538","spm":"1001.2101.3001.4138","ab":"new","dest":""}'><span class="year">2018年</span><span class="num">114篇</span></a></div>
+                <div class="archive-list-item"><a href="https://blog.csdn.net/qq_40194498/article/month/2017/12" target="_blank" data-report-click='{"mod":"popu_538","spm":"1001.2101.3001.4138","ab":"new","dest":""}'><span class="year">2017年</span><span class="num">5篇</span></a></div>
+        </div>
+    </div>
+</div>
+	<div id="footerRightAds" class="isShowFooterAds">
+		<div class="aside-box">
+			<div id="kp_box_57" data-pid="57"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PC-博客详情页-左下视窗（300*600） -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-1076724771190722"
+     data-ad-slot="1173711872"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script><img class="pre-img-lasy" data-src="https://kunyu.csdn.net/1.png?p=57&a=2488&c=0&k=&spm=1001.2101.3001.5001&d=1&t=3&u=e845426342a04877a56c91450a2e67dc" style="display: block;width: 0px;height: 0px;"></div>
+		</div>
+	</div>
+    <!-- 详情页显示目录 -->
+<!--文章目录-->
+<div id="asidedirectory" class="aside-box">
+    <div class='groupfile' id="directory">
+        <h3 class="aside-title">目录</h3>
+        <div class="align-items-stretch group_item">
+            <div class="pos-box">
+            <div class="scroll-box">
+                <div class="toc-box"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+</aside>
+<script>
+	$("a.flexible-btn").click(function(){
+		$(this).parents('div.aside-box').removeClass('flexible-box');
+		$(this).parents("p.text-center").remove();
+	})
+</script>
+<script type="text/javascript"  src="https://g.csdnimg.cn/user-tooltip/2.4/user-tooltip.js"></script>
+<script type="text/javascript"  src="https://g.csdnimg.cn/user-medal/1.0.6/user-medal.js"></script>    </div>
+<div class="recommend-right  align-items-stretch clearfix" id="rightAside" data-type="recommend">
+    <aside class="recommend-right_aside">
+        <div id="recommend-right" >
+                        <div class='flex-column aside-box groupfile' id="groupfile">
+                <div class="groupfile-div">
+                <h3 class="aside-title">目录</h3>
+                <div class="align-items-stretch group_item">
+                    <div class="pos-box">
+                        <div class="scroll-box">
+                            <div class="toc-box"></div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+                <div id="recommendAdBox">
+                    <div id="kp_box_479" data-pid="479"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PC-博客内页右侧第一顺位 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:300px;height:600px"
+     data-ad-client="ca-pub-1076724771190722"
+     data-ad-slot="1827473444"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script><img class="pre-img-lasy" data-src="https://kunyu.csdn.net/1.png?p=479&a=3266&c=0&k=&spm=1001.2101.3001.4834&d=1&t=3&u=08a0a38c022047da96845a20733eca83" style="display: block;width: 0px;height: 0px;"></div>
+                </div>
+            <div class='aside-box kind_person d-flex flex-column'>
+                    <h3 class="aside-title">分类专栏</h3>
+                    <div class="align-items-stretch kindof_item" id="kind_person_column">
+                        <div class="aside-content">
+                            <ul>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_9273141.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_9273141.html","ab":"new"}'>
+                                        <img src="//img-blog.csdn.net/20180322161351057?imageView2/1/w/64/h/64/interlace/1" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">Qt之路</span>
+                                        </span>
+                                        <span class="count float-right">61篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_9608232.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_9608232.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756919.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">音视频</span>
+                                        </span>
+                                        <span class="count float-right">1篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7366338.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7366338.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756738.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">网络编程</span>
+                                        </span>
+                                        <span class="count float-right">9篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7384315.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7384315.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756780.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">数据库</span>
+                                        </span>
+                                        <span class="count float-right">6篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7388553.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7388553.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756916.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">QT</span>
+                                        </span>
+                                        <span class="count float-right">115篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7466389.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7466389.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756928.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">C++</span>
+                                        </span>
+                                        <span class="count float-right">17篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7488199.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7488199.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756724.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">MFC</span>
+                                        </span>
+                                        <span class="count float-right">3篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7542700.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7542700.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">编程通识</span>
+                                        </span>
+                                        <span class="count float-right">12篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7577954.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7577954.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756913.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">Qcustomplot</span>
+                                        </span>
+                                        <span class="count float-right">11篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7580030.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7580030.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756926.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">QML</span>
+                                        </span>
+                                        <span class="count float-right">15篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7648358.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7648358.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756738.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">程序人生</span>
+                                        </span>
+                                        <span class="count float-right">2篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7663438.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7663438.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756738.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">Qt样式表</span>
+                                        </span>
+                                        <span class="count float-right">10篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7758842.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7758842.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">QtXlsx</span>
+                                        </span>
+                                        <span class="count float-right">1篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7785246.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7785246.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756918.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">Linux</span>
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_7926951.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_7926951.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">Qt+MSVC</span>
+                                        </span>
+                                        <span class="count float-right">3篇</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a class="clearfix" target="_blank" href="https://blog.csdn.net/qq_40194498/category_8008977.html" data-report-click='{"mod":"popu_537","spm":"1001.2101.3001.4137","strategy":"pc付费专栏左侧入口","dest":"https://blog.csdn.net/qq_40194498/category_8008977.html","ab":"new"}'>
+                                        <img src="https://img-blog.csdnimg.cn/20201014180756754.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://img-blog.csdnimg.cn/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'">
+                                        <span class="title oneline">
+                                            <span class="text">互斥锁</span>
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+</div>
+<div class="mask-dark"></div>
+<script type="text/javascript">
+    var timert = setInterval(function(){
+      sideToolbar = $(".csdn-side-toolbar");
+      if (sideToolbar.length > 0) {
+        sideToolbar.css('cssText','bottom:64px !important;')
+        clearInterval(timert);
+      }
+    }, 200);
+</script>
+<script>
+    var articleId = 80063960;
+    var commentscount = 2;
+    var curentUrl = "https://blog.csdn.net/qq_40194498/article/details/80063960";
+    var myUrl = "https://my.csdn.net/";
+    var highlight = ["Qt","延时","处理","方法"];//高亮数组
+    var isRecommendModule = true;
+    var isBaiduPre = true;
+    var baiduCount = 3;
+    var share_card_url = "https://blog.csdn.net/qq_40194498/article/shareArticleCardPage?article_id=80063960"
+	var articleType = 1;
+    var baiduKey = "qt 延时";
+    var needInsertBaidu = true;
+    var recommendRegularDomainArr = ["blog.csdn.net/.+/article/details/","download.csdn.net/download/","edu.csdn.net/course/detail/","ask.csdn.net/questions/","bbs.csdn.net/topics/","www.csdn.net/gather_.+/"]
+    var codeStyle = "";
+    var baiduSearchType = "baidulandingword";
+    var canRead = false;
+    var blogMoveHomeArticle = false;
+    var showPcWindowAd = false;
+    var showSearchText = "control";
+    var linkPage = true;
+    var articleSource = 1;
+    var articleReport = '{"pid": "blog", "spm":"1001.2101"}';
+</script>
+<script src="https://csdnimg.cn/public/sandalstrap/1.4/js/sandalstrap.min.js"></script>
+<div class="skin-boxshadow"></div>
+<div style="display:none;">
+	<img src="" onerror='setTimeout(function(){if(!/(csdn.net|iteye.com|baiducontent.com|googleusercontent.com|360webcache.com|sogoucdn.com|bingj.com|baidu.com)$/.test(window.location.hostname)){window.location.href="\x68\x74\x74\x70\x73\x3a\x2f\x2f\x77\x77\x77\x2e\x63\x73\x64\x6e\x2e\x6e\x65\x74"}},3000);'>
+</div>
 </body>
-</html>
+<script src="https://csdnimg.cn/release/blogv2/dist/components/js/pc_wap_highlight-db1e81323a.min.js" type="text/javascript"></script>
+<script src="https://csdnimg.cn/release/blogv2/dist/components/js/pc_wap_common-906586e915.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="https://csdnimg.cn/release/blog_editor_html/release1.6.12/ckeditor/plugins/codesnippet/lib/highlight/styles/atom-one-light.css">
+<script>
+ // 全局声明
+ if (window.csdn === undefined) {
+      window.csdn = {};
+    }
+    window.csdn.sideToolbar = {
+        options: {
+            report:{
+                isShow: true,
+            },
+            qr: {
+                isShow: false,
+            },
+            guide: {
+                isShow: true
+            }
+        }
+    }
+    $(function(){
+        $(document).on('click',"a.option-box[data-type='report']",function() {
+            window.csdn.userLogin.loadAjax(function(res){
+                showReport(false,articleTitles);
+            })
+        });
+    })
+</script>
+    <script src="https://g.csdnimg.cn/baidu-search/1.0.9/baidu-search.js"  type="text/javascript"></script>
+<script src="https://csdnimg.cn/release/download/old_static/js/qrcode.js"></script>
+<script src="https://csdnimg.cn/release/blogv2/dist/pc/js/common-b286f966c8.min.js" type="text/javascript"></script>
+<script src="https://csdnimg.cn/release/blogv2/dist/pc/js/detail-7588366af7.min.js" type="text/javascript"></script>
+<script src="https://g.csdnimg.cn/user-ordercart/1.0.6/user-ordercart.js" type="text/javascript"></script>
+<script src="https://csdnimg.cn/release/blogv2/dist/pc/js/column-78261cfea6.min.js" type="text/javascript"></script>
+<script src="https://g.csdnimg.cn/side-toolbar/2.8/side-toolbar.js" type="text/javascript"></script>
+<script src="https://g.csdnimg.cn/copyright/1.0.3/copyright.js" type="text/javascript"></script>
+<script>
+    $(".MathJax").remove();
+    if ($('div.markdown_views pre.prettyprint code.hljs').length > 0) {
+        $('div.markdown_views')[0].className = 'markdown_views';
+    }
+</script>
+<script type="text/javascript" src="https://csdnimg.cn/release/blog_mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+            "HTML-CSS": {
+                    linebreaks: { automatic: true, width: "94%container" },
+                    imageFont: null
+            },
+            tex2jax: {
+                preview: "none"
+            },
+            mml2jax: {
+                preview: 'none'
+            }
+    });
+</script>
+<script type="text/javascript" crossorigin src="https://g.csdnimg.cn/user-login/2.3.2/user-login.js"></script>
+<script type="text/javascript" crossorigin src="https://g.csdnimg.cn/login-box/1.1.4/login-box.js"></script></html>

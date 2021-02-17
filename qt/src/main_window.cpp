@@ -25,12 +25,6 @@ void main_window::closeEvent(QCloseEvent *event)
     QMessageBox::StandardButton msg_ret;
 
     /* 检查是否有network的进程正在运行 */
-    if (nw_qmutex.try_lock() == false){
-        qDebug() << "network do something...";
-        event->ignore();
-        return;
-    } else
-        nw_qmutex.unlock();
 
     msg_ret = msg.question(
         nullptr,

@@ -25,8 +25,6 @@
 #include <windows.h>
 #endif
 
-QMutex nw_qmutex;
-
 void mysleep(size_t msec)
 {
 //    QTime dieTime = QTime::currentTime().addMSecs(msec);
@@ -113,7 +111,7 @@ mcgf_network::~mcgf_network()
  *******************************************************************/
 bool mcgf_network::get_html(QString url, bool save, void *params)
 {
-    QNetworkReply *reply = nullptr;
+    bool ret = true;
 
     if ( save == true ) {
         args = (gh_params_t *)(params);
@@ -122,23 +120,28 @@ bool mcgf_network::get_html(QString url, bool save, void *params)
 
     if ( url == nullptr ) {
         qDebug() << "url is null.";
-    } else {
-        qDebug() << "get html: " << url;
-        nw_qmutex.lock();
-        reply = this->network_am->get(QNetworkRequest(QUrl(url)));
-        nw_qmutex.unlock();
-        if ( reply ) {
-            QObject::connect(
-                this->network_am,
-                SIGNAL(finished(QNetworkReply *)),
-                this,
-                SLOT(get_html_slot(QNetworkReply *))
-            );
-            return true;
-        } else
-            return false;
+        ret = false;
+        goto __out;
     }
-    return false;
+
+    qDebug() << "get html: " << url;
+    this->network_am->get(QNetworkRequest(QUrl(url)));
+
+    QObject::connect(
+        this->network_am,
+        SIGNAL(finished(QNetworkReply *)),
+        this,
+        SLOT(get_html_slot(QNetworkReply *))
+    );
+    QObject::connect(
+        this,
+        SIGNAL(save_html_sig(gh_params_t *)),
+        this,
+        SLOT(save_html_slot(gh_params_t *))
+    );
+
+__out:
+    return ret;
 }
 
 /******************************************************************
@@ -148,26 +151,21 @@ bool mcgf_network::get_html(QString url, bool save, void *params)
  *******************************************************************/
 void mcgf_network::get_html_slot(QNetworkReply *reply)
 {
-    if ( reply ) {
-        if ( save_flag == true ) {
-            QObject::connect(
-                this,
-                SIGNAL(save_html_sig(gh_params_t *)),
-                this,
-                SLOT(save_html(gh_params_t *))
-            );
-            args->reply = reply;
-            emit save_html_sig(args);
-        }
-    } else {
-        // TODO:
-    }
     QObject::disconnect(
         this->network_am,
         SIGNAL(finished(QNetworkReply *)),
         this,
-        SLOT(network_reply_slot(QNetworkReply *))
+        SLOT(get_html_slot(QNetworkReply *))
     );
+
+    if ( reply ) {
+        if ( save_flag == true ) {
+            args->reply = reply;
+            emit save_html_sig(args);
+        }
+    } else {
+        // TODO: do something
+    }
 }
 
 
@@ -196,8 +194,6 @@ void mcgf_network::save_html_slot(gh_params_t *params)
     mcgf_fo file;
     bool fflag = false;
 
-    nw_qmutex.lock();
-
     /* save html file to disk */
     fflag = file.openw(path, params->reply->readAll());
     if ( fflag ) {
@@ -208,13 +204,11 @@ void mcgf_network::save_html_slot(gh_params_t *params)
         QMessageBox::warning(nullptr, "Error", "Save html error", QMessageBox::Ok, QMessageBox::Cancel);
     }
 
-    nw_qmutex.unlock();
-
     QObject::disconnect(
         this,
         SIGNAL(save_html_sig(gh_params_t *)),
         this,
-        SLOT(save_html(gh_params_t *))
+        SLOT(save_html_slot(gh_params_t *))
     );
 
     return;
@@ -228,11 +222,12 @@ void mcgf_network::save_html_slot(gh_params_t *params)
  *******************************************************************/
 size_t mcgf_network::get_file_size(QString url)
 {
+    qDebug() << "get_file_size 1";
+
     network_req->setUrl(url);
     network_am->head(*network_req);
 
     file_size = 0;
-    nw_qmutex.lock();
 
     QObject::connect(
         network_am,
@@ -244,6 +239,9 @@ size_t mcgf_network::get_file_size(QString url)
     /* wait file size be get. */
     while ( file_size == 0 )
         mysleep(100);
+
+    qDebug() << "get_file_size 2";
+
     return file_size;
 }
 
@@ -255,7 +253,6 @@ size_t mcgf_network::get_file_size(QString url)
 void mcgf_network::get_file_size_slot(QNetworkReply *reply)
 {
     QString raw_size = nullptr;
-    nw_qmutex.unlock();
 
     if ( reply->hasRawHeader("Content-Length") ) {
         raw_size = reply->rawHeader("Content-Length");
