@@ -13,6 +13,8 @@ public:
     main_window();
     ~main_window();
 
+    void closeEvent(QCloseEvent *event);
+
     Ui::main_window *main_ui;
 };
 #endif // MAIN_WINDOW_H

@@ -10,6 +10,7 @@
  *************************************************/
 #include "mcgf_file.h"
 
+// TODO: open check
 
 bool mcgf_fo::openw(QString path, const char *wbuffer)
 {

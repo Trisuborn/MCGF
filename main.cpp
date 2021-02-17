@@ -15,10 +15,14 @@
 #include <mcgf/network/mcgf_network.h>
 #include <mcgf/file/mcgf_file.h>
 
-QString url = "http://files.minecraftforge.net/maven/net/minecraftforge/forge/index_1.12.1.html";
+QString url1 = "https://www.cnblogs.com/lifan3a/articles/7691974.html";
+QString url2 = "https://www.cnblogs.com/lifan3a/articles/7691974.html";
+QString url3 = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.1-14.22.1.2481/forge-1.12.1-14.22.1.2481-installer-win.exe";
+
 QString cur_path = "F:\\work\\NoEmbed\\cpp\\qt\\MCGF\\";
 QString file_name = "test.html";
 QString fpath = cur_path + file_name;
+
 
 
 int main(int argc, char *argv[])
@@ -26,12 +30,20 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     main_window main_win;
 
-    mcgf_network *mcgf_netw = new mcgf_network;
-    mcgf_network::gh_params_t gh;
-    gh.file_name = file_name;
-    gh.save_path = cur_path;
-    mcgf_netw->get_html(url, true, &gh);
-
     main_win.show();
+
+
+    mcgf_network *mcgf_netw = new mcgf_network;
+//    mcgf_network::gh_params_t gh;
+//    gh.file_name = file_name;
+//    gh.save_path = cur_path;
+//    mcgf_netw->get_html(url1, true, &gh);
+
+    qDebug() << mcgf_netw->get_filename(url3);
+
+    qDebug() << "file size:" << mcgf_netw->get_file_size(url3);
+
+//    delete mcgf_netw;
+
     return app.exec();
 }
