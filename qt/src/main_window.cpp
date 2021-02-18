@@ -25,6 +25,21 @@ void main_window::closeEvent(QCloseEvent *event)
     QMessageBox::StandardButton msg_ret;
 
     /* 检查是否有network的进程正在运行 */
+    if ( mcgf_nw_mb.mcgf_nw_has_busy() ) {
+        qDebug() << "network is busy.";
+        msg_ret = msg.question(
+            nullptr,
+            "Quit", "Network is running, exit?",
+            msg.Yes | msg.No
+        );
+        if ( msg_ret == msg.Yes ) {
+            // TODO:
+            mcgf_nw_mb.send_nw_all_abort_emit();
+            event->accept();
+        } else
+            event->ignore();
+        return;
+    }
 
     msg_ret = msg.question(
         nullptr,

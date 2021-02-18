@@ -18,43 +18,50 @@
 #include <QString>
 
 /******************************************************************
- * @brief mcgf_thread
+ * @brief HTML 线程
  *******************************************************************/
-class mcgf_thread : public QThread
+class dl_html : public QObject
 {
     Q_OBJECT
 public:
-    size_t th_run_time = 0;
-    virtual void run();
+    dl_html(QString url, QString file_name, QString save_path);
+    ~dl_html();
 
 public slots:
-    virtual void done_slot();
+    void download_start();
+    void download_abort();
 
 signals:
-    void done_sig();
+    void download_done(size_t fsize = 0);
+
+private:
+    mcgf_network *nw = nullptr;
+    QString url = nullptr;
+    QString file_name = nullptr;
+    QString save_path = nullptr;
 };
 
-/******************************************************************
- * @brief mcgf_dl_html_th
- *******************************************************************/
-class mcgf_dl_html_th : public mcgf_thread
+class dl_html_ctl : public QObject
 {
     Q_OBJECT
 public:
-    mcgf_dl_html_th();
-    mcgf_dl_html_th(QString iurl, QString file_name, QString save_path);
-    ~mcgf_dl_html_th();
-    void run();
+    dl_html_ctl(QString url, QString file_name, QString save_path);
+    ~dl_html_ctl(void);
+
+    void start(void);
+    void stop(void);
 
 public slots:
-    void done_slot();
+
+signals:
+    void start_sig();
+    void stop_sig();
 
 private:
-    int method = -1;
-    mcgf_network *nw = nullptr;
-    QString url = nullptr;
-    QString fname = nullptr;
-    QString sp = nullptr;
+    QThread *dl_thread = nullptr;
+    dl_html *html = nullptr;
 };
+
+
 
 #endif // MCGF_THREADS_H

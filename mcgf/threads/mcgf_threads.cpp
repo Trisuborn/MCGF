@@ -15,65 +15,89 @@
 #include <QTimer>
 #include <QMessageBox>
 
+
 QString local_url = "./404.html";
 QString def_path  = "./";
 
 extern void mysleep(size_t msec);
 
+QMutex qmutex_nw;
 
 /******************************************************************
- * @brief mcgf_thread
+ * @brief HTML
  *******************************************************************/
-void mcgf_thread::run()
+dl_html::dl_html(QString url, QString file_name, QString save_path)
+{
+    this->url         = url;
+    this->file_name   = file_name;
+    this->save_path   = save_path;
+}
+
+dl_html::~dl_html()
 {
 
 }
 
-void mcgf_thread::done_slot()
+void dl_html::download_start()
 {
-    qDebug() << "mcgf_thread::done_slot";
-    this->wait();
-    this->quit();
-}
+    nw = new mcgf_network;
 
+    qmutex_nw.lock();
+    mcgf_nw_mb.mcgf_nw_register(nw);
+    qmutex_nw.unlock();
 
-/******************************************************************
- * @brief mcgf_dl_html_th
- *******************************************************************/
-mcgf_dl_html_th::mcgf_dl_html_th()
-{
-    method = 1;
-    connect(this, SIGNAL(done_sig()), this, SLOT(done_slot()));
-}
+    url         = url.isNull() ? local_url : url;
+    file_name   = file_name.isNull() ? (nw->get_filename(url)) : file_name;
+    save_path   = save_path.isNull() ? def_path : save_path;
 
-mcgf_dl_html_th::mcgf_dl_html_th(QString iurl, QString file_name, QString save_path)
-{
-    method = 2;
+    qDebug() << nw->get_html(url, file_name, save_path, (100 * 60));
 
-    url   = iurl.isNull() ? local_url : iurl;
-    fname = file_name.isNull() ? (nw->get_filename(url)) : file_name;
-    sp    = save_path.isNull() ? def_path : save_path;
+    qmutex_nw.lock();
+    mcgf_nw_mb.mcgf_nw_unregister(nw);
+    qmutex_nw.unlock();
 
-    connect(this, SIGNAL(done_sig()), this, SLOT(done_slot()));
-
-}
-
-mcgf_dl_html_th::~mcgf_dl_html_th()
-{
-    disconnect(this, SIGNAL(done_sig()), this, SLOT(done_slot()));
-}
-
-
-void mcgf_dl_html_th::run()
-{
-    mcgf_network *nw = new mcgf_network;
-    nw->get_html(url, fname, sp, (100*60));
-    emit done_sig();
-}
-
-void mcgf_dl_html_th::done_slot()
-{
     delete nw;
-    this->wait();
-    this->quit();
+
 }
+
+void dl_html::download_abort()
+{
+    qDebug() << __func__;
+}
+
+dl_html_ctl::dl_html_ctl(QString url, QString file_name, QString save_path)
+{
+
+    dl_thread = new QThread;
+    html = new dl_html(url, file_name, save_path);
+
+    /* start and stop */
+    connect(this, SIGNAL(start_sig()), html, SLOT(download_start()));
+    connect(this, SIGNAL(stop_sig()), html, SLOT(download_abort()));
+
+    /* delete later */
+    connect(dl_thread, SIGNAL(finished()), html, SLOT(deleteLater()));
+
+    /* run thread */
+    html->moveToThread(dl_thread);
+    dl_thread->start();
+}
+
+dl_html_ctl::~dl_html_ctl()
+{
+    dl_thread->quit();
+    dl_thread->wait();
+
+    delete dl_thread;
+}
+
+void dl_html_ctl::start()
+{
+    emit start_sig();
+}
+void dl_html_ctl::stop()
+{
+    emit stop_sig();
+}
+
+

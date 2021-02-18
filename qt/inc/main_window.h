@@ -8,7 +8,6 @@
 class main_window : public QMainWindow
 {
     Q_OBJECT
-
 public:
     main_window();
     ~main_window();
@@ -16,5 +15,8 @@ public:
     void closeEvent(QCloseEvent *event);
 
     Ui::main_window *main_ui;
+
+
+
 };
 #endif // MAIN_WINDOW_H

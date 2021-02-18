@@ -1,14 +1,17 @@
 /************************************************
  * @file mcgf_file.cpp
  * @author Trisuborn (ttowfive@gmail.com)
- * @brief 
+ * @brief
  * @version 1.0
  * @date 2021-02-17
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  *************************************************/
 #include "mcgf_file.h"
+
+#include <QEventLoop>
+#include <QTimer>
 
 extern void mysleep(size_t msec);
 
@@ -23,55 +26,55 @@ mcgf_fo::~mcgf_fo()
 
 }
 
-bool mcgf_fo::open_with_check(QFile *file)
+bool mcgf_fo::open_with_check(QFile *filp)
 {
     size_t timeout = 10;
-    while (file->isOpen() && timeout--)      // 等待已打开文件退出并设置超时
+    while ( filp->isOpen() && timeout-- )      // 等待已打开文件退出并设置超时
         mysleep(10);
-    if (file->isOpen()){
-        file->close();
+    if ( filp->isOpen() ) {
+        filp->close();
         return false;
     } else
         return true;
 }
 
-bool mcgf_fo::openw(QString path, const char *wbuffer)
-{
-    bool fflag = false;
-    qint64 wsize = 0;
-    QFile file(path);
-
-    file_busy_flag = true;
-
-    open_with_check(&file);
-    fflag = file.open(QIODevice::WriteOnly | QIODevice::Text);
-    if (!fflag)
-        return fflag;
-    else {
-        wsize = file.write(wbuffer);
-        if (!wsize)
-            return false;
-        else
-            return true;
-    }
-    file.close();
-
-    file_busy_flag = false;
-}
-
-bool mcgf_fo::opena(QString path, const char *wbuffer)
+bool mcgf_fo::_openr(QString path, QString &rbuffer, QIODevice::OpenMode mode)
 {
 
 }
 
-bool mcgf_fo::openr(QString path, char *rbuffer)
+bool mcgf_fo::_openw(QString path, const QString &wbuffer, QIODevice::OpenMode mode)
 {
+    bool ret = false;
+    QFile *filp = new QFile(path);
 
+    ret = open_with_check(filp);
+    if ( !ret )
+        goto __out;
+
+    ret = filp->open(mode);
+    if ( !ret )
+        goto __out;
+
+    if ( filp->write(wbuffer.toUtf8()) )
+        ret = true;
+    else
+        ret = false;
+
+__out:
+    delete filp;
+    return ret;
 }
 
-bool mcgf_fo::openrw(QString path, char *buffer)
-{
 
+bool mcgf_fo::open_write(QString path, const QString &wbuffer)
+{
+    return this->_openw(path, wbuffer, QIODevice::Text | QIODevice::WriteOnly);
+}
+
+bool mcgf_fo::open_write_bytes(QString path, const QString &wbuffer)
+{
+    return this->_openw(path, wbuffer);
 }
 
 

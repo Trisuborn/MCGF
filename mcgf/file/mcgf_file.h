@@ -12,6 +12,7 @@
 #define MCGF_FILE_H
 
 #include <QFile>
+#include <QFileInfo>
 
 /* mcgf file operation */
 class mcgf_fo : public QObject
@@ -23,12 +24,15 @@ public:
     mcgf_fo();
     ~mcgf_fo();
 
-    bool open_with_check(QFile *file);
+    bool open_with_check(QFile *filp);
 
-    bool openw(QString path, const char *wbuffer);
-    bool opena(QString path, const char *wbuffer);
-    bool openr(QString path, char *rbuffer);
-    bool openrw(QString path, char *buffer);
+    bool _openw(QString path, const QString &wbuffer, QIODevice::OpenMode mode = QIODevice::WriteOnly);
+    bool _openr(QString path, QString &rbuffer, QIODevice::OpenMode mode = QIODevice::WriteOnly);
+
+    bool open_write(QString path, const QString &wbuffer);
+    bool open_write_bytes(QString path, const QString &wbuffer);
+
+private:
 
 
 };
