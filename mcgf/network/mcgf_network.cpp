@@ -18,75 +18,27 @@
 
 #include <QElapsedTimer>
 #include <QTimer>
-
-#ifdef __linux__
-#include <windows.h>
-#elif _WIN32
-#include <windows.h>
-#endif
+#include <QThread>
 
 void mysleep(size_t msec)
 {
-//    QTime dieTime = QTime::currentTime().addMSecs(msec);
-//    while ( QTime::currentTime() < dieTime ) {
-//        QApplication::processEvents(QEventLoop::AllEvents, 100);
-//    }
     QEventLoop loop;//定义一个新的事件循环
     QTimer::singleShot(msec, &loop, SLOT(quit()));//创建单次定时器，槽函数为事件循环的退出函数
     loop.exec();//事件循环开始执行，程序会卡在这里，直到定时时间到，本循环被退出
 }
 
 
-mcgf_nw_dl_th::mcgf_nw_dl_th()
-{
-    qDebug() << "mcgf_nw_dl_th";
-    QObject::connect(this,
-                     SIGNAL(done_sig()),
-                     this,
-                     SLOT(done_slot()));
-}
-
-void mcgf_nw_dl_th::run()
-{
-    QElapsedTimer qetime;
-
-    qetime.start();
-
-    for ( int cnt = 0; cnt < 11; cnt++ ) {
-        qDebug() << cnt;
-        mysleep(100);
-    }
-
-    dl_msec = qetime.elapsed();
-    qDebug() << "msec" << dl_msec;
-    emit done_sig();
-}
-
-void mcgf_nw_dl_th::done_slot()
-{
-    qDebug() << "done_slot";
-    this->wait();
-    this->quit();
-}
-
 /******************************************************************************/
 /******************************************************************************/
-/******************************************************************************/
-/******************************************************************************/
-/******************************************************************************/
-
 
 /******************************************************************
  * @brief Construct a new mcgf network::mcgf network object
  *******************************************************************/
 mcgf_network::mcgf_network()
 {
-    qDebug() << "mcgf_network init.";
+    qDebug() << "mcgf_network create.";
     this->network_am = new QNetworkAccessManager(this);
     this->network_req = new QNetworkRequest();
-
-    this->dl_tid = new mcgf_nw_dl_th();
-    this->dl_tid->start();
 }
 
 /******************************************************************
@@ -97,121 +49,22 @@ mcgf_network::~mcgf_network()
     qDebug() << "mcgf_network delete.";
     delete this->network_am;
     delete this->network_req;
-    delete this->dl_tid;
 }
 
 /******************************************************************
- * @brief
+ * @brief wait reply
  *
- * @param url
- * @param save
- * @param params
+ * @param timeout unit: 1 jiffy
  * @return true
  * @return false
  *******************************************************************/
-bool mcgf_network::get_html(QString url, bool save, void *params)
+bool mcgf_network::wait_reply(size_t timeout)
 {
-    bool ret = true;
-
-    if ( save == true ) {
-        args = (gh_params_t *)(params);
-        save_flag = true;
-    }
-
-    if ( url == nullptr ) {
-        qDebug() << "url is null.";
-        ret = false;
-        goto __out;
-    }
-
-    qDebug() << "get html: " << url;
-    this->network_am->get(QNetworkRequest(QUrl(url)));
-
-    QObject::connect(
-        this->network_am,
-        SIGNAL(finished(QNetworkReply *)),
-        this,
-        SLOT(get_html_slot(QNetworkReply *))
-    );
-    QObject::connect(
-        this,
-        SIGNAL(save_html_sig(gh_params_t *)),
-        this,
-        SLOT(save_html_slot(gh_params_t *))
-    );
-
-__out:
-    return ret;
-}
-
-/******************************************************************
- * @brief
- *
- * @param reply
- *******************************************************************/
-void mcgf_network::get_html_slot(QNetworkReply *reply)
-{
-    QObject::disconnect(
-        this->network_am,
-        SIGNAL(finished(QNetworkReply *)),
-        this,
-        SLOT(get_html_slot(QNetworkReply *))
-    );
-
-    if ( reply ) {
-        if ( save_flag == true ) {
-            args->reply = reply;
-            emit save_html_sig(args);
-        }
-    } else {
-        // TODO: do something
-    }
-}
-
-
-/******************************************************************
- * @brief
- *
- * @param params
- *******************************************************************/
-void mcgf_network::save_html_slot(gh_params_t *params)
-{
-    if ( params->reply == nullptr ) {
-        qDebug() << "Html hasn't any replies";
-        QMessageBox::warning(nullptr, "Error", "Http get error!", QMessageBox::Ok, QMessageBox::Cancel);
-        return;
-    } else if ( (params->file_name == nullptr) || (params->save_path == nullptr) ) {
-        qDebug() << "Save name and path error.";
-        QMessageBox::warning(nullptr, "Error", "params error!", QMessageBox::Ok, QMessageBox::Cancel);
-        return;
-    }
-
-    qDebug() << "Save html in: " << params->save_path;
-    qDebug() << "Save html as: " << params->file_name;
-    qDebug() << "Starting save...";
-
-    QString path = params->save_path + params->file_name;
-    mcgf_fo file;
-    bool fflag = false;
-
-    /* save html file to disk */
-    fflag = file.openw(path, params->reply->readAll());
-    if ( fflag ) {
-        // TODO: do something
-        qDebug() << "Save done.";
-        QMessageBox::information(nullptr, "Successfully!", "Save done", QMessageBox::Ok, QMessageBox::Cancel);
-    } else {
-        QMessageBox::warning(nullptr, "Error", "Save html error", QMessageBox::Ok, QMessageBox::Cancel);
-    }
-
-    QObject::disconnect(
-        this,
-        SIGNAL(save_html_sig(gh_params_t *)),
-        this,
-        SLOT(save_html_slot(gh_params_t *))
-    );
-
-    return;
+    if ( !timeout )
+        return false;
+    while ( !nw_reply_flag && timeout-- )
+        mysleep(10);
+    return nw_reply_flag;
 }
 
 /******************************************************************
@@ -222,8 +75,6 @@ void mcgf_network::save_html_slot(gh_params_t *params)
  *******************************************************************/
 size_t mcgf_network::get_file_size(QString url)
 {
-    qDebug() << "get_file_size 1";
-
     network_req->setUrl(url);
     network_am->head(*network_req);
 
@@ -239,8 +90,6 @@ size_t mcgf_network::get_file_size(QString url)
     /* wait file size be get. */
     while ( file_size == 0 )
         mysleep(100);
-
-    qDebug() << "get_file_size 2";
 
     return file_size;
 }
@@ -349,5 +198,59 @@ void mcgf_network::save_file_slot(QNetworkReply *reply)
 
 
 
+
+bool mcgf_network::get_html(QString url, QString file_name, QString save_path, size_t timeout)
+{
+    if ( url.isNull() ) {
+        qDebug() << "url error";
+        QMessageBox::critical(nullptr, "Error", "url error.", QMessageBox::Ok);
+        return false;
+    }
+    if ( save_path.isNull() )
+        save_path = "./";
+    if ( file_name.isNull() )
+        file_name = get_filename(url);
+
+    if ( (save_path.endsWith("\\") || save_path.endsWith("/")) == false ) {
+        if ( !save_path.endsWith("\\") )
+            save_path += '\\';
+        else
+            save_path += '/';
+    }
+
+    QString path = save_path + file_name;
+    QFileInfo finfo(path);
+    if ( finfo.isDir() )
+        path += get_filename(url);
+
+    /* connect signal */
+    connect(network_am, SIGNAL(finished(QNetworkReply *)), this, SLOT(html_reply_slot(QNetworkReply *)));
+    network_req->setUrl(QUrl(url));
+    network_am->get(*network_req);
+
+    if ( wait_reply(timeout) == false ) {
+        qDebug() << "wait reply error";
+        QMessageBox::critical(nullptr, "Error", "html wait reply error", QMessageBox::Ok);
+        return false;
+    }
+
+    mcgf_fo *file = new mcgf_fo;
+    save_done_flag = file->openw(path, nw_reply->readAll());
+    delete file;
+
+    if ( save_done_flag ) {
+        qDebug() << "Html file save done";
+        return true;
+    } else {
+        qDebug() << "Html file save error";
+        return false;
+    }
+}
+
+void mcgf_network::html_reply_slot(QNetworkReply *reply)
+{
+    nw_reply_flag = true;
+    nw_reply = reply;
+}
 
 
